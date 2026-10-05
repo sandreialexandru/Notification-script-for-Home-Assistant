@@ -174,7 +174,7 @@ Every selected device receives the **same** notification. When someone presses a
 | **Show / Text** | Up to 3 buttons. Keep the labels short, because Android truncates them. |
 | **Button mode** (Android) | **Actions** runs actions in Home Assistant. **Link** opens a link. On Android a button can't do both (an app limitation). iOS ignores this setting and does both. |
 | **Actions** | What runs when the button is pressed. For a button that only dismisses the notification, leave it empty. |
-| **Link** | Same format as the notification link; on iOS `tel:` and `mailto:` also work. |
+| **Link** | `/lovelace/…`, `https://…`; Android: `app://<package>`, `entityId:<entity>`, `deep-link://<link>`, `intent://…`, `settings://notification_history`; iOS: `tel:`, `mailto:` or any app URL scheme. |
 | **Icon / Destructive / Require unlock** (iOS) | An SF Symbol name (e.g. `door.left.hand.open`), red text for dangerous actions, and Face ID / passcode before the action runs. Requiring unlock is recommended for door actions. |
 </details>
 
@@ -263,7 +263,7 @@ The same script can be called with a different text, urgency or set of devices:
     field_tts_text: "Warning, water in the bathroom"
 ```
 
-Available fields: `field_notify_devices`, `field_urgency`, `field_title`, `field_subtitle`, `field_message`, `field_notification_link`, `field_attachment_type`, `field_attachment_camera_entity`, `field_attachment_image_url`, `field_option_{one,two,three}_enabled`, `field_option_{one,two,three}_text`, `field_enable_timeout`, `field_timeout`, `field_run_timeout_actions`, `field_tts_text`.
+Available fields: `field_notify_devices`, `field_urgency`, `field_title`, `field_subtitle`, `field_message`, `field_notification_link`, `field_attachment_type`, `field_attachment_camera_entity`, `field_attachment_image_url`, `field_option_{one,two,three}_enabled`, `field_option_{one,two,three}_text`, `field_option_{one,two,three}_mode`, `field_option_{one,two,three}_uri`, `field_enable_timeout`, `field_timeout`, `field_run_timeout_actions`, `field_tts_text`.
 
 > Button actions **cannot** be overridden through `fields`, because of a blueprint limitation. To run different actions, use the script response (example 3) or create another script.
 
