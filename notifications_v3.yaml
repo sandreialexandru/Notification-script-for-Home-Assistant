@@ -154,6 +154,10 @@ blueprint:
 
             - A web page: `https://example.com`
 
+            - A deep link (Android): `deep-link://example://link/to/content`
+
+            - Notification history (Android): `settings://notification_history`
+
 
             Empty = opens the HA app. Optional.
           default: ""
@@ -350,8 +354,35 @@ blueprint:
         confirm_uri:
           name: "1️⃣ Option 1 link"
           description: >-
-            E.g. `/lovelace/cameras`, `entityId:camera.front_door` (Android),
-            `tel:0721000000` (iOS), `https://...`. Empty = no link.
+            Where to go when this button is pressed. Empty = no link.
+
+
+            **Common**
+
+            - HA dashboard / page: `/lovelace/cameras`, `/config/dashboard`
+
+            - Web page (default browser): `https://example.com`
+
+
+            **🤖 Android**
+
+            - Open an app: `app://<package name>`, e.g. `app://com.google.android.apps.chromecast.app`
+
+            - Entity more-info panel: `entityId:camera.front_door`
+
+            - Deep link: `deep-link://<link>`, e.g. `deep-link://example://link/to/content`
+
+            - Intent: `intent://scan/#Intent;scheme=zxing;package=com.my.pkg;end`
+
+            - Notification history: `settings://notification_history`
+
+
+            ** iOS**
+
+            - App-launching URLs: `tel:0721000000`, `mailto:me@example.com`, or any app URL scheme
+
+
+            ⚠️ Android: requires Button mode = **Link**, and it does not stop the timeout.
           default: ""
           selector:
             text:
@@ -409,6 +440,7 @@ blueprint:
             action:
         dismiss_uri:
           name: "2️⃣ Option 2 link"
+          description: "Same formats as the Option 1 link (including `deep-link://`, `app://`, `intent://`)."
           default: ""
           selector:
             text:
@@ -462,6 +494,7 @@ blueprint:
             action:
         option_three_uri:
           name: "3️⃣ Option 3 link"
+          description: "Same formats as the Option 1 link (including `deep-link://`, `app://`, `intent://`)."
           default: ""
           selector:
             text:
@@ -796,6 +829,19 @@ fields:
     name: "1️⃣ Option 1 text"
     selector:
       text:
+  field_option_one_mode:
+    name: "1️⃣ Option 1 mode (Android)"
+    description: "action / uri"
+    selector:
+      select:
+        options:
+          - action
+          - uri
+  field_option_one_uri:
+    name: "1️⃣ Option 1 link"
+    description: "E.g. deep-link://..., app://..., /lovelace/..."
+    selector:
+      text:
   field_option_two_enabled:
     name: "2️⃣ Show option 2"
     selector:
@@ -804,12 +850,38 @@ fields:
     name: "2️⃣ Option 2 text"
     selector:
       text:
+  field_option_two_mode:
+    name: "2️⃣ Option 2 mode (Android)"
+    description: "action / uri"
+    selector:
+      select:
+        options:
+          - action
+          - uri
+  field_option_two_uri:
+    name: "2️⃣ Option 2 link"
+    description: "E.g. deep-link://..., app://..., /lovelace/..."
+    selector:
+      text:
   field_option_three_enabled:
     name: "3️⃣ Show option 3"
     selector:
       boolean:
   field_option_three_text:
     name: "3️⃣ Option 3 text"
+    selector:
+      text:
+  field_option_three_mode:
+    name: "3️⃣ Option 3 mode (Android)"
+    description: "action / uri"
+    selector:
+      select:
+        options:
+          - action
+          - uri
+  field_option_three_uri:
+    name: "3️⃣ Option 3 link"
+    description: "E.g. deep-link://..., app://..., /lovelace/..."
     selector:
       text:
   field_enable_timeout:
@@ -953,21 +1025,24 @@ sequence:
         {{ {'enabled': field_option_one_enabled if field_option_one_enabled is defined else s_opt1_enabled,
             'id': 'FIRST_' ~ context.id,
             'title': field_option_one_text if field_option_one_text is defined else s_opt1_title,
-            'mode': opt1_mode, 'uri': opt1_uri,
+            'mode': field_option_one_mode if field_option_one_mode is defined else opt1_mode,
+            'uri': field_option_one_uri if field_option_one_uri is defined else opt1_uri,
             'icon': ('' if not opt1_icon else (opt1_icon if opt1_icon.startswith('sfsymbols:') else 'sfsymbols:' ~ opt1_icon)),
             'destructive': opt1_destructive, 'auth': opt1_auth} }}
       option_two: >-
         {{ {'enabled': field_option_two_enabled if field_option_two_enabled is defined else s_opt2_enabled,
             'id': 'SECOND_' ~ context.id,
             'title': field_option_two_text if field_option_two_text is defined else s_opt2_title,
-            'mode': opt2_mode, 'uri': opt2_uri,
+            'mode': field_option_two_mode if field_option_two_mode is defined else opt2_mode,
+            'uri': field_option_two_uri if field_option_two_uri is defined else opt2_uri,
             'icon': ('' if not opt2_icon else (opt2_icon if opt2_icon.startswith('sfsymbols:') else 'sfsymbols:' ~ opt2_icon)),
             'destructive': opt2_destructive, 'auth': opt2_auth} }}
       option_three: >-
         {{ {'enabled': field_option_three_enabled if field_option_three_enabled is defined else s_opt3_enabled,
             'id': 'THIRD_' ~ context.id,
             'title': field_option_three_text if field_option_three_text is defined else s_opt3_title,
-            'mode': opt3_mode, 'uri': opt3_uri,
+            'mode': field_option_three_mode if field_option_three_mode is defined else opt3_mode,
+            'uri': field_option_three_uri if field_option_three_uri is defined else opt3_uri,
             'icon': ('' if not opt3_icon else (opt3_icon if opt3_icon.startswith('sfsymbols:') else 'sfsymbols:' ~ opt3_icon)),
             'destructive': opt3_destructive, 'auth': opt3_auth} }}
       any_option: "{{ option_one.enabled or option_two.enabled or option_three.enabled }}"
