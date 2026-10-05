@@ -12,12 +12,7 @@ A Home Assistant **script blueprint** for actionable notifications in the [Home 
 > The idea, base structure and most of the logic are the original author's work: actionable buttons, timeout handling, camera snapshots and the Android/iOS differences. See also his [Home Assistant Community thread](https://community.home-assistant.io/t/notifications-actionable-mobile-notifications-script-with-optional-timeout-feature-and-camera-snapshots-works-with-ios-android/551552).
 > If you find this useful, please give his project a ⭐ too.
 
-[![Import blueprint into Home Assistant](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FUSER%2FREPO%2Fblob%2Fmain%2Fnotifications_v3.yaml)
-
-<!-- Replace USER/REPO in the link above with your repository path. -->
-
-> [!IMPORTANT]
-> The blueprint's interface (setting names and descriptions) is in **Romanian**. Below, each setting is described in English with its Romanian label in *italics*, so you can match them in the UI.
+[![Import blueprint into Home Assistant](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fsandreialexandru%2FNotification-script-for-Home-Assistant%2Fblob%2Fmain%2Fnotifications_v3.yaml)
 
 ---
 
@@ -80,7 +75,7 @@ Also fixed:
 
 **Create a script from the blueprint:**
 1. Go to *Settings → Automations & Scenes → Blueprints*.
-2. Pick **🔔 Notificări (v3.0…)** and click **Create script**.
+2. Pick **🔔 Notifications (Version 3.0)** and click **Create script**.
 3. Fill in the settings and save. The name you choose becomes the `script.<name>` entity.
 
 > [!TIP]
@@ -133,54 +128,54 @@ Every selected device receives the **same** notification. When someone presses a
 ## ⚙️ Settings by section
 
 <details>
-<summary><b>📲 Devices and presence</b> — <i>Dispozitive și prezență</i></summary>
+<summary><b>📲 Devices and presence</b></summary>
 
 | Setting | What it does |
 |---|---|
-| **Devices to notify** — *Dispozitive de notificat* | One or more devices with the Companion app. TVs don't appear here; they use a different kind of notification. |
-| **Presence filter** — *Filtru după prezență* | *Everyone* / *Only those at home* / *Only those away*. Presence comes from the `person.*` entity, or from the phone's `device_tracker` as a fallback. A device without a tracker, such as a wall tablet, is always notified. |
-| **Critical bypasses the filter** — *Urgența Critic ignoră filtrul* | On by default, so a critical alert always reaches everyone. |
+| **Devices to notify** | One or more devices with the Companion app. TVs don't appear here; they use a different kind of notification. |
+| **Presence filter** | *Everyone* / *Only those at home* / *Only those away*. Presence comes from the `person.*` entity, or from the phone's `device_tracker` as a fallback. A device without a tracker, such as a wall tablet, is always notified. |
+| **Critical bypasses the filter** | On by default, so a critical alert always reaches everyone. |
 </details>
 
 <details>
-<summary><b>💬 Content</b> — <i>Conținut</i></summary>
+<summary><b>💬 Content</b></summary>
 
 | Setting | What it does |
 |---|---|
-| **Title / Subtitle / Message** — *Titlu / Subtitlu / Mesaj* | The notification text. On Android the message accepts simple HTML (`<b>`, `<i>`, `<font color>`). On iOS the tags show up as plain text. |
-| **Notification link** — *Link la apăsarea notificării* | What opens when the notification is tapped: `/lovelace/intercom`, `entityId:lock.front_door` (Android), `app://com.spotify.music` (Android), `https://…` |
-| **Icon / color** (Android) — *Iconiță / Culoare* | The status-bar icon, for example `mdi:doorbell`, and its color. |
+| **Title / Subtitle / Message** | The notification text. On Android the message accepts simple HTML (`<b>`, `<i>`, `<font color>`). On iOS the tags show up as plain text. |
+| **Notification link** | What opens when the notification is tapped: `/lovelace/intercom`, `entityId:lock.front_door` (Android), `app://com.spotify.music` (Android), `https://…` |
+| **Icon / color** (Android) | The status-bar icon, for example `mdi:doorbell`, and its color. |
 </details>
 
 <details>
-<summary><b>🖼️ Image</b> — <i>Imagine</i></summary>
+<summary><b>🖼️ Image</b></summary>
 
 | Type | What it does |
 |---|---|
-| **None** — *Fără* | — |
-| **Camera** — *Cameră* | A snapshot taken when the notification is sent. On iOS, long-pressing it shows the live stream. |
+| **None** | — |
+| **Camera** | A snapshot taken when the notification is sent. On iOS, long-pressing it shows the live stream. |
 | **URL** | `/local/…` (from `config/www`), `/media/local/…` or `https://…`. Relative links only load when the phone can reach Home Assistant. |
 </details>
 
 <details>
-<summary><b>🚦 Urgency and quiet hours</b> — <i>Urgență</i></summary>
+<summary><b>🚦 Urgency and quiet hours</b></summary>
 
 | Setting | What it does |
 |---|---|
-| **Urgency level** — *Nivel de urgență* | See the table above. |
-| **Quiet hours** — *Ore de liniște* | During the chosen window, which may cross midnight (e.g. 22:30 → 07:00), **Info and Normal** notifications are either sent silently (as Info, without TTS) or not sent at all. Important and Critical always go through. |
+| **Urgency level** | See the table above. |
+| **Quiet hours** | During the chosen window, which may cross midnight (e.g. 22:30 → 07:00), **Info and Normal** notifications are either sent silently (as Info, without TTS) or not sent at all. Important and Critical always go through. |
 </details>
 
 <details>
-<summary><b>1️⃣ 2️⃣ 3️⃣ Buttons</b> — <i>Butonul 1 / 2 / 3</i></summary>
+<summary><b>1️⃣ 2️⃣ 3️⃣ Buttons</b></summary>
 
 | Setting | What it does |
 |---|---|
-| **Show / Text** — *Afișează / Text buton* | Up to 3 buttons. Keep the labels short, because Android truncates them. |
-| **Button mode** (Android) — *Ce face butonul* | **Actions** runs actions in Home Assistant. **Link** opens a link. On Android a button can't do both (an app limitation). iOS ignores this setting and does both. |
-| **Actions** — *Acțiuni* | What runs when the button is pressed. For a button that only dismisses the notification, leave it empty. |
+| **Show / Text** | Up to 3 buttons. Keep the labels short, because Android truncates them. |
+| **Button mode** (Android) | **Actions** runs actions in Home Assistant. **Link** opens a link. On Android a button can't do both (an app limitation). iOS ignores this setting and does both. |
+| **Actions** | What runs when the button is pressed. For a button that only dismisses the notification, leave it empty. |
 | **Link** | Same format as the notification link; on iOS `tel:` and `mailto:` also work. |
-| **Icon / Destructive / Require unlock** (iOS) — *Iconiță / Buton roșu / Cere deblocarea* | An SF Symbol name (e.g. `door.left.hand.open`), red text for dangerous actions, and Face ID / passcode before the action runs. Requiring unlock is recommended for door actions. |
+| **Icon / Destructive / Require unlock** (iOS) | An SF Symbol name (e.g. `door.left.hand.open`), red text for dangerous actions, and Face ID / passcode before the action runs. Requiring unlock is recommended for door actions. |
 </details>
 
 <details>
@@ -188,28 +183,28 @@ Every selected device receives the **same** notification. When someone presses a
 
 | Setting | What it does |
 |---|---|
-| **Enable timeout** — *Activează timeout* | How long the script listens for an answer. When disabled, it listens until someone answers. |
-| **Timeout actions** — *Acțiuni la timeout* | What happens when nobody answers, for example sending a Critical notification. |
-| **Swipe-away = timeout** (Android) — *Ștergerea notificării = timeout* | A swipe on any device runs the timeout actions immediately. |
-| **Clear on timeout** — *Șterge notificarea la timeout* | Removes the notification from all devices when it expires. |
+| **Enable timeout** | How long the script listens for an answer. When disabled, it listens until someone answers. |
+| **Timeout actions** | What happens when nobody answers, for example sending a Critical notification. |
+| **Swipe-away = timeout** (Android) | A swipe on any device runs the timeout actions immediately. |
+| **Clear on timeout** | Removes the notification from all devices when it expires. |
 </details>
 
 <details>
-<summary><b>🤖 Advanced Android</b> — <i>Android avansat</i></summary>
+<summary><b>🤖 Advanced Android</b></summary>
 
 | Setting | What it does |
 |---|---|
-| **Channel prefix** — *Prefix canal* | Channels are created as `<prefix> Info / Normal / Important`. A separate prefix per script lets each script have its own sound. |
-| **Fast delivery** — *Livrare imediată* | Sends with `priority: high` and `ttl: 0`, so battery saving doesn't delay the notification. It doesn't change the sound. |
-| **Alert once** — *Sună o singură dată* | Updates to the same notification don't sound again. |
-| **Persistent** — *Notificare fixă* | The notification can't be swiped away. |
-| **Sticky** — *Rămâne după apăsare* | The notification stays after it is tapped. |
-| **Countdown** — *Numărătoare inversă* | Shows the time left until the timeout. |
-| **Vibration pattern** — *Model vibrație* | For example `0, 500, 200, 500` (milliseconds of pause, vibrate, pause, vibrate…). |
-| **LED color** — *Culoare LED* | Only on phones that still have a notification LED. |
-| **Lock screen** — *Pe ecranul blocat* | Public / Private / Secret. |
+| **Channel prefix** | Channels are created as `<prefix> Info / Normal / Important`. A separate prefix per script lets each script have its own sound. |
+| **Fast delivery** | Sends with `priority: high` and `ttl: 0`, so battery saving doesn't delay the notification. It doesn't change the sound. |
+| **Alert once** | Updates to the same notification don't sound again. |
+| **Persistent** | The notification can't be swiped away. |
+| **Sticky** | The notification stays after it is tapped. |
+| **Countdown** | Shows the time left until the timeout. |
+| **Vibration pattern** | For example `0, 500, 200, 500` (milliseconds of pause, vibrate, pause, vibrate…). |
+| **LED color** | Only on phones that still have a notification LED. |
+| **Lock screen** | Public / Private / Secret. |
 | **Android Auto** | Also shows the notification in the car. |
-| **TTS** — *Citește cu voce tare* | The phone reads the message aloud. *Media* can't be heard in silent mode; *Alarm* can; *Alarm (max)* temporarily raises the alarm volume to maximum. TTS never plays at the Info level. |
+| **TTS** | The phone reads the message aloud. *Media* can't be heard in silent mode; *Alarm* can; *Alarm (max)* temporarily raises the alarm volume to maximum. TTS never plays at the Info level. |
 </details>
 
 <details>
@@ -217,17 +212,17 @@ Every selected device receives the **same** notification. When someone presses a
 
 | Setting | What it does |
 |---|---|
-| **Sound** — *Sunet* | The name of a sound in the app (*Settings → Companion App → Notifications → Sounds*), for example `US-EN-Alexa-Doorbell.wav`. `none` means no sound. |
-| **Critical volume** — *Volum la Critic* | 0–1. Plays even when the phone is muted. |
+| **Sound** | The name of a sound in the app (*Settings → Companion App → Notifications → Sounds*), for example `US-EN-Alexa-Doorbell.wav`. `none` means no sound. |
+| **Critical volume** | 0–1. Plays even when the phone is muted. |
 </details>
 
 <details>
-<summary><b>⚙️ Misc</b> — <i>Diverse</i></summary>
+<summary><b>⚙️ Misc</b></summary>
 
 | Setting | What it does |
 |---|---|
 | **Tag** | Leave it empty (recommended) to get a unique tag per run. A fixed tag such as `intercom` makes each new notification **replace** the previous one. |
-| **Group** — *Grup* | Groups notifications visually. Critical notifications on iOS are never grouped. |
+| **Group** | Groups notifications visually. Critical notifications on iOS are never grouped. |
 </details>
 
 ---
@@ -302,7 +297,7 @@ Available fields: `field_notify_devices`, `field_urgency`, `field_title`, `field
 
 ```yaml
 result: option_one          # see the table below
-responded_by: Ana           # name of the person who answered ("cineva" if unknown)
+responded_by: Ana           # name of the person who answered ("someone" if unknown)
 responder_person: person.ana
 level: important            # effective urgency, after quiet hours
 quiet_hours: false          # true if quiet hours were applied
@@ -340,7 +335,7 @@ devices: [Pixel 8, iPhone Ana]
 
 **The sound or importance doesn't change on Android:** the channel already exists with the old settings. Change the **channel prefix**, or edit the channel in the phone's settings.
 
-**The notification never arrives:** open *Settings → Automations & Scenes → Scripts → (your script) → Traces*. The *Notificare* step shows which service was called and any error.
+**The notification never arrives:** open *Settings → Automations & Scenes → Scripts → (your script) → Traces*. The *Notification* step shows which service was called and any error.
 
 ---
 
