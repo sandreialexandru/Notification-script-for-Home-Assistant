@@ -1,367 +1,370 @@
-# 🔔 Notificări acționabile pentru Home Assistant (v3)
+# 🔔 Actionable Notifications for Home Assistant (v3)
 
-Blueprint de **script** pentru Home Assistant care trimite notificări acționabile în aplicația [Home Assistant Companion](https://companion.home-assistant.io/) pe **Android și iOS**. Poți trimite pe mai multe telefoane deodată, ai un singur selector de urgență, ore de liniște, filtru după prezență, TTS și imagini atașate.
+A Home Assistant **script blueprint** for actionable notifications in the [Home Assistant Companion](https://companion.home-assistant.io/) app on **Android and iOS**. It can notify several phones at once and has a single urgency selector, quiet hours, a presence filter, text-to-speech and image attachments.
 
 > [!NOTE]
 > ### 🙏 Credit
-> Acest blueprint este o **versiune modificată** a blueprint-ului
+> This blueprint is a **modified version** of
 > **[🔔 Notifications v2.0.2](https://github.com/samuelthng/t-house-blueprints/blob/main/notifications.yaml)**
-> creat de **[@samuelthng](https://github.com/samuelthng)** în repo-ul
-> [t-house-blueprints](https://github.com/samuelthng/t-house-blueprints).
+> by **[@samuelthng](https://github.com/samuelthng)**, from the
+> [t-house-blueprints](https://github.com/samuelthng/t-house-blueprints) repository.
 >
-> Ideea, structura de bază și mare parte din logică (butoanele acționabile, timeout-ul, snapshot-urile de cameră, diferențele Android/iOS) îi aparțin autorului original. Proiectul lui are și o [discuție pe forumul Home Assistant](https://community.home-assistant.io/t/notifications-actionable-mobile-notifications-script-with-optional-timeout-feature-and-camera-snapshots-works-with-ios-android/551552).
-> Dacă îți place, lasă-i o ⭐ și lui.
+> The idea, base structure and most of the logic are the original author's work: actionable buttons, timeout handling, camera snapshots and the Android/iOS differences. See also his [Home Assistant Community thread](https://community.home-assistant.io/t/notifications-actionable-mobile-notifications-script-with-optional-timeout-feature-and-camera-snapshots-works-with-ios-android/551552).
+> If you find this useful, please give his project a ⭐ too.
 
-[![Importă blueprint-ul în Home Assistant](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FUTILIZATOR%2FREPO%2Fblob%2Fmain%2Fnotifications_v3.yaml)
+[![Import blueprint into Home Assistant](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FUSER%2FREPO%2Fblob%2Fmain%2Fnotifications_v3.yaml)
 
-<!-- Înlocuiește UTILIZATOR/REPO în linkul de mai sus cu calea repo-ului tău. -->
+<!-- Replace USER/REPO in the link above with your repository path. -->
+
+> [!IMPORTANT]
+> The blueprint's interface (setting names and descriptions) is in **Romanian**. Below, each setting is described in English with its Romanian label in *italics*, so you can match them in the UI.
 
 ---
 
-## Cuprins
+## Contents
 
-- [Ce aduce nou față de original](#-ce-aduce-nou-față-de-original)
-- [Cerințe](#-cerințe)
-- [Instalare](#-instalare)
-- [Cum funcționează](#-cum-funcționează)
-- [Setări, pe secțiuni](#️-setări-pe-secțiuni)
-- [Exemple de folosire](#-exemple-de-folosire)
-- [Răspunsul scriptului](#-răspunsul-scriptului)
-- [Limitări cunoscute](#️-limitări-cunoscute)
-- [Depanare](#-depanare)
+- [What's new compared to the original](#-whats-new-compared-to-the-original)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [How it works](#-how-it-works)
+- [Settings by section](#️-settings-by-section)
+- [Usage examples](#-usage-examples)
+- [Script response](#-script-response)
+- [Known limitations](#️-known-limitations)
+- [Troubleshooting](#-troubleshooting)
 - [Changelog](#-changelog)
 
 ---
 
-## ✨ Ce aduce nou față de original
+## ✨ What's new compared to the original
 
 | | Original v2.0.2 | v3 |
 |---|---|---|
-| Dispozitive | unul singur | **unul sau mai multe**, Android și iOS amestecate |
-| Răspuns pe mai multe telefoane | — | primul răspuns câștigă, iar pe celelalte telefoane notificarea **se actualizează** cu cine a răspuns |
-| Urgență | setări separate pentru Android (canal + importanță) și iOS | **un singur selector**: Info / Normal / Important / Critic |
-| Canale Android | un singur canal `General`, așa că schimbarea importanței era ignorată | **câte un canal pentru fiecare nivel**, iar Critic folosește `alarm_stream` |
-| Ore de liniște | — | ✅ |
-| Filtru după prezență | — | ✅ (acasă / plecați) |
-| TTS pe Android | — | ✅ |
-| Imagine | doar cameră | cameră **sau URL** |
-| Opțiuni Android | de bază | + numărătoare inversă, `alert_once`, `sticky`, vibrație, LED |
-| Sunet iOS | implicit | **sunet personalizat** + volum la Critic |
-| Interfață | listă lungă de setări | **secțiuni pliabile**, descrieri în română cu exemple |
-| Mod de rulare | `restart`, așa că o notificare nouă o anula pe cea veche | `parallel`, fiecare notificare ascultă independent |
-| Sintaxă | `service:` / `platform:` | `action:` / `trigger:` (sintaxa actuală) |
+| Devices | one | **one or more**, Android and iOS mixed |
+| Multi-device response | — | first answer wins, and the notification **is updated** on the other devices to show who answered |
+| Urgency | separate Android (channel + importance) and iOS settings | **one selector**: Info / Normal / Important / Critical |
+| Android channels | a single `General` channel, so importance changes were ignored | **one channel per level**, with `alarm_stream` for Critical |
+| Quiet hours | — | ✅ |
+| Presence filter | — | ✅ (home / away) |
+| Android TTS | — | ✅ |
+| Image | camera only | camera **or URL** |
+| Android options | basic | + countdown, `alert_once`, `sticky`, vibration, LED |
+| iOS sound | default only | **custom sound** + critical volume |
+| UI | one long list | **collapsible sections**, descriptions with concrete examples |
+| Run mode | `restart`, so a new notification cancelled the previous one | `parallel`, so each notification listens independently |
+| Syntax | `service:` / `platform:` | `action:` / `trigger:` (current syntax) |
 
-Reparat și:
-- titlurile butoanelor 2 și 3 nu puteau fi suprascrise din `fields`;
-- câmpul butonului 3 avea ca exemplu valoarea butonului 2;
-- descrierile butoanelor 2 și 3 erau copiate de la butonul 1;
-- scriptul nu returna niciun rezultat la timeout când acțiunile de timeout erau dezactivate.
-
----
-
-## 📋 Cerințe
-
-- **Home Assistant 2024.10** sau mai nou
-- Aplicația **Home Assistant Companion** pe fiecare telefon sau tabletă ([Android](https://play.google.com/store/apps/details?id=io.homeassistant.companion.android) / [iOS](https://apps.apple.com/app/home-assistant/id1099568401)), cu notificările permise
-- Pentru afișarea numelui celui care a răspuns: fiecare telefon trebuie legat de o **persoană** în *Settings → People*
+Also fixed:
+- button 2 and button 3 titles could not be overridden through `fields`;
+- the button 3 field showed button 2's value as its example;
+- the button 2 and 3 descriptions were copied from button 1;
+- the script returned no result on timeout when timeout actions were disabled.
 
 ---
 
-## 📥 Instalare
+## 📋 Requirements
 
-**Varianta 1: butonul de import.** Apasă butonul **Importă blueprint-ul** de sus.
+- **Home Assistant 2024.10** or newer
+- The **Home Assistant Companion** app on every phone or tablet ([Android](https://play.google.com/store/apps/details?id=io.homeassistant.companion.android) / [iOS](https://apps.apple.com/app/home-assistant/id1099568401)), with notifications allowed
+- To show *who* answered, each phone must be linked to a **person** in *Settings → People*
 
-**Varianta 2: manual.**
-1. Copiază `notifications_v3.yaml` în `config/blueprints/script/<folder_ales>/`.
-2. *Developer Tools → YAML → Scripts* → **Reload**. Poți reporni și HA.
+---
 
-**Crearea unui script din blueprint:**
-1. *Settings → Automations & Scenes → Blueprints*.
-2. Alege **🔔 Notificări (v3.0…)** → **Create script**.
-3. Completează setările și salvează. Numele ales devine entitatea `script.<nume>`.
+## 📥 Installation
+
+**Option 1: import button.** Click the **Import blueprint** button at the top of this page.
+
+**Option 2: manual.**
+1. Copy `notifications_v3.yaml` to `config/blueprints/script/<any_folder>/`.
+2. Go to *Developer Tools → YAML → Scripts* and click **Reload**, or restart Home Assistant.
+
+**Create a script from the blueprint:**
+1. Go to *Settings → Automations & Scenes → Blueprints*.
+2. Pick **🔔 Notificări (v3.0…)** and click **Create script**.
+3. Fill in the settings and save. The name you choose becomes the `script.<name>` entity.
 
 > [!TIP]
-> Fă câte un script pentru fiecare tip de notificare (interfon, ușă deschisă, mașina de spălat…). Fiecare script are butoanele, urgența și sunetul lui.
+> Create one script per notification type (intercom, door left open, washing machine…). Each one gets its own buttons, urgency and sound.
 
 ---
 
-## 🧠 Cum funcționează
+## 🧠 How it works
 
 ```
-Scriptul pornește
+Script starts
    │
-   ├─ calculează urgența → aplică orele de liniște (poate retrograda sau opri)
-   ├─ alege dispozitivele → aplică filtrul de prezență
-   ├─ trimite notificarea pe fiecare dispozitiv (format Android sau iOS, automat)
-   │     └─ opțional: TTS pe Android
+   ├─ resolve urgency → apply quiet hours (may demote or skip)
+   ├─ resolve devices → apply presence filter
+   ├─ send the notification to each device (Android/iOS payload built automatically)
+   │     └─ optional: TTS on Android
    │
-   ├─ așteaptă: apăsare buton │ ștergere cu swipe │ timeout
+   ├─ wait for: button press │ swipe-away │ timeout
    │
-   ├─ mai multe dispozitive + cineva a răspuns?
-   │     └─ pe celelalte telefoane notificarea devine „✅ <buton> — <persoană>, <ora>”
+   ├─ multiple devices and someone answered?
+   │     └─ on the other phones the notification becomes "✅ <button> — <person>, <time>"
    │
-   ├─ rulează acțiunile butonului apăsat (sau pe cele de timeout)
-   └─ returnează rezultatul (vezi „Răspunsul scriptului”)
+   ├─ run the pressed button's actions (or the timeout actions)
+   └─ return the result (see "Script response")
 ```
 
-### Mai multe dispozitive
+### Multiple devices
 
-Toate dispozitivele primesc **aceeași** notificare. Când cineva apasă un buton:
-- acțiunea butonului se execută **o singură dată**;
-- pe celelalte telefoane notificarea **nu dispare**, ci se înlocuiește cu, de exemplu, `✅ Deschide ușa — Ana, 23:15`, fără butoane, ca nimeni să nu mai apese degeaba;
-- telefoanele persoanei care a răspuns nu primesc actualizarea.
+Every selected device receives the **same** notification. When someone presses a button:
+- the button's actions run **exactly once**;
+- on the other devices the notification is **not removed**. It is replaced with something like `✅ Open door — Ana, 23:15`, without buttons, so nobody presses one for nothing;
+- the devices of the person who answered don't receive the update.
 
-### Niveluri de urgență
+### Urgency levels
 
-| Nivel | Android | iOS | Folosește pentru |
+| Level | Android | iOS | Use it for |
 |---|---|---|---|
-| 🔕 **Info** | canal `<prefix> Info`, fără sunet | `passive`: nu sună, nu aprinde ecranul | rapoarte, „mașina de spălat a terminat” |
-| 🔔 **Normal** | canal `<prefix> Normal`, sunet normal | `active` | majoritatea notificărilor |
-| ⚠️ **Important** | canal `<prefix> Important`, banner peste ecran | `time-sensitive`: trece de Focus | interfon, ușă lăsată deschisă |
-| 🚨 **Critic** | canal `alarm_stream`: sună ca alarma, trece de *Nu deranja* și de silențios | `critical`: trece de Mute și Focus | inundație, fum, alarmă |
+| 🔕 **Info** | channel `<prefix> Info`, silent | `passive`: no sound, doesn't wake the screen | reports, "washing machine finished" |
+| 🔔 **Normal** | channel `<prefix> Normal`, normal sound | `active` | most notifications |
+| ⚠️ **Important** | channel `<prefix> Important`, heads-up banner | `time-sensitive`: breaks through Focus | intercom, door left open |
+| 🚨 **Critical** | channel `alarm_stream`: alarm sound, bypasses Do Not Disturb and silent mode | `critical`: bypasses Mute and Focus | water leak, smoke, alarm |
 
 > [!IMPORTANT]
-> Pe **Android**, sunetul, vibrația și LED-ul unui canal se fixează **la prima notificare** trimisă pe acel canal. După aceea le poți schimba doar din telefon (*Setări → Aplicații → Home Assistant → Notificări*) sau dând alt **prefix de canal**, ca să se creeze canale noi.
+> On **Android**, a channel's sound, vibration and LED are fixed **the first time** a notification is sent on it. After that you can change them only in the phone's settings (*Settings → Apps → Home Assistant → Notifications*) or by setting a different **channel prefix**, which creates new channels.
 >
-> Pe **iOS**, nivelul Critic cere permisiunea **Critical Alerts**, pe care aplicația o solicită la prima notificare critică.
+> On **iOS**, the Critical level needs the **Critical Alerts** permission. The app asks for it the first time it receives a critical notification.
 
 ---
 
-## ⚙️ Setări, pe secțiuni
+## ⚙️ Settings by section
 
 <details>
-<summary><b>📲 Dispozitive și prezență</b></summary>
+<summary><b>📲 Devices and presence</b> — <i>Dispozitive și prezență</i></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Dispozitive de notificat** | Unul sau mai multe dispozitive cu aplicația Companion. Televizoarele nu apar aici, pentru că au alt tip de notificare. |
-| **Filtru după prezență** | *Toți* / *Doar cei acasă* / *Doar cei plecați*. Prezența se ia din `person.*` sau din `device_tracker`-ul telefonului. Un dispozitiv fără tracker primește mereu notificarea. |
-| **Critic ignoră filtrul** | Implicit activ: o alertă critică ajunge la toată lumea. |
+| **Devices to notify** — *Dispozitive de notificat* | One or more devices with the Companion app. TVs don't appear here; they use a different kind of notification. |
+| **Presence filter** — *Filtru după prezență* | *Everyone* / *Only those at home* / *Only those away*. Presence comes from the `person.*` entity, or from the phone's `device_tracker` as a fallback. A device without a tracker, such as a wall tablet, is always notified. |
+| **Critical bypasses the filter** — *Urgența Critic ignoră filtrul* | On by default, so a critical alert always reaches everyone. |
 </details>
 
 <details>
-<summary><b>💬 Conținut</b></summary>
+<summary><b>💬 Content</b> — <i>Conținut</i></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Titlu / Subtitlu / Mesaj** | Textul notificării. Pe Android mesajul acceptă HTML simplu (`<b>`, `<i>`, `<font color>`). Pe iOS tag-urile apar ca text. |
-| **Link la apăsarea notificării** | `/lovelace/interfon`, `entityId:lock.usa` (Android), `app://com.spotify.music` (Android), `https://…` |
-| **Iconiță / culoare** (Android) | Iconița din bara de stare, de exemplu `mdi:doorbell`, și culoarea ei. |
+| **Title / Subtitle / Message** — *Titlu / Subtitlu / Mesaj* | The notification text. On Android the message accepts simple HTML (`<b>`, `<i>`, `<font color>`). On iOS the tags show up as plain text. |
+| **Notification link** — *Link la apăsarea notificării* | What opens when the notification is tapped: `/lovelace/intercom`, `entityId:lock.front_door` (Android), `app://com.spotify.music` (Android), `https://…` |
+| **Icon / color** (Android) — *Iconiță / Culoare* | The status-bar icon, for example `mdi:doorbell`, and its color. |
 </details>
 
 <details>
-<summary><b>🖼️ Imagine</b></summary>
+<summary><b>🖼️ Image</b> — <i>Imagine</i></summary>
 
-| Tip | Ce face |
+| Type | What it does |
 |---|---|
-| **Fără** | — |
-| **Cameră** | Snapshot din momentul trimiterii. Pe iOS, apăsarea lungă arată stream live. |
-| **URL** | `/local/…` (din `config/www`), `/media/local/…` sau `https://…`. Linkurile relative se încarcă doar dacă telefonul ajunge la HA. |
+| **None** — *Fără* | — |
+| **Camera** — *Cameră* | A snapshot taken when the notification is sent. On iOS, long-pressing it shows the live stream. |
+| **URL** | `/local/…` (from `config/www`), `/media/local/…` or `https://…`. Relative links only load when the phone can reach Home Assistant. |
 </details>
 
 <details>
-<summary><b>🚦 Urgență și ore de liniște</b></summary>
+<summary><b>🚦 Urgency and quiet hours</b> — <i>Urgență</i></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Nivel de urgență** | Vezi tabelul de mai sus. |
-| **Ore de liniște** | În intervalul ales (poate trece peste miezul nopții, de exemplu 22:30 → 07:00), notificările **Info și Normal** sunt fie trimise silențios (ca Info, fără TTS), fie deloc. Important și Critic trec mereu. |
+| **Urgency level** — *Nivel de urgență* | See the table above. |
+| **Quiet hours** — *Ore de liniște* | During the chosen window, which may cross midnight (e.g. 22:30 → 07:00), **Info and Normal** notifications are either sent silently (as Info, without TTS) or not sent at all. Important and Critical always go through. |
 </details>
 
 <details>
-<summary><b>1️⃣ 2️⃣ 3️⃣ Butoane</b></summary>
+<summary><b>1️⃣ 2️⃣ 3️⃣ Buttons</b> — <i>Butonul 1 / 2 / 3</i></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Afișează / Text** | Până la 3 butoane. Textul trebuie să fie scurt, pentru că Android îl taie. |
-| **Ce face butonul** (Android) | **Acțiuni**: rulează acțiuni în HA. **Link**: deschide un link. Pe Android un buton nu le poate face pe amândouă (limitare a aplicației). Pe iOS setarea se ignoră și se fac ambele. |
-| **Acțiuni** | Ce rulează la apăsare. Pentru un buton care doar închide notificarea, lasă lista goală. |
-| **Link** | Același format ca la linkul notificării; pe iOS și `tel:`, `mailto:`. |
-| **Iconiță / Roșu / Cere deblocare** (iOS) | SF Symbol, de exemplu `door.left.hand.open`; text roșu pentru acțiuni periculoase; cere Face ID / cod. Deblocarea e recomandată pentru deschiderea ușii. |
+| **Show / Text** — *Afișează / Text buton* | Up to 3 buttons. Keep the labels short, because Android truncates them. |
+| **Button mode** (Android) — *Ce face butonul* | **Actions** runs actions in Home Assistant. **Link** opens a link. On Android a button can't do both (an app limitation). iOS ignores this setting and does both. |
+| **Actions** — *Acțiuni* | What runs when the button is pressed. For a button that only dismisses the notification, leave it empty. |
+| **Link** | Same format as the notification link; on iOS `tel:` and `mailto:` also work. |
+| **Icon / Destructive / Require unlock** (iOS) — *Iconiță / Buton roșu / Cere deblocarea* | An SF Symbol name (e.g. `door.left.hand.open`), red text for dangerous actions, and Face ID / passcode before the action runs. Requiring unlock is recommended for door actions. |
 </details>
 
 <details>
 <summary><b>⌛️ Timeout</b></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Activează timeout** | Cât timp ascultă scriptul. Dacă e dezactivat, ascultă până răspunde cineva. |
-| **Acțiuni la timeout** | Ce se întâmplă dacă nu răspunde nimeni, de exemplu trimiterea unei notificări Critice. |
-| **Ștergerea = timeout** (Android) | Un swipe pe oricare telefon rulează imediat acțiunile de timeout. |
-| **Șterge la timeout** | Notificarea dispare de pe toate dispozitivele la expirare. |
+| **Enable timeout** — *Activează timeout* | How long the script listens for an answer. When disabled, it listens until someone answers. |
+| **Timeout actions** — *Acțiuni la timeout* | What happens when nobody answers, for example sending a Critical notification. |
+| **Swipe-away = timeout** (Android) — *Ștergerea notificării = timeout* | A swipe on any device runs the timeout actions immediately. |
+| **Clear on timeout** — *Șterge notificarea la timeout* | Removes the notification from all devices when it expires. |
 </details>
 
 <details>
-<summary><b>🤖 Android avansat</b></summary>
+<summary><b>🤖 Advanced Android</b> — <i>Android avansat</i></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Prefix canal** | Canalele create: `<prefix> Info / Normal / Important`. Un prefix propriu per script înseamnă un sunet propriu per script. |
-| **Livrare imediată** | `priority: high` + `ttl: 0`, ca economia de baterie să nu întârzie notificarea. Nu schimbă sunetul. |
-| **Sună o singură dată** | Actualizările aceleiași notificări nu mai sună. |
-| **Notificare fixă** | Nu poate fi ștearsă cu swipe. |
-| **Rămâne după apăsare** | Nu dispare când apeși pe ea. |
-| **Numărătoare inversă** | Arată cât timp a mai rămas până la timeout. |
-| **Model vibrație** | De exemplu `0, 500, 200, 500` (ms: pauză, vibrație, …). |
-| **Culoare LED** | Doar pe telefoanele care mai au LED. |
-| **Pe ecranul blocat** | Public / Privat / Secret. |
-| **Android Auto** | Afișează notificarea și în mașină. |
-| **TTS** | Telefonul citește mesajul. *Media* nu se aude pe silențios; *Alarmă* se aude; *Alarmă la maxim* urcă temporar volumul. Nu se citește la nivelul Info. |
+| **Channel prefix** — *Prefix canal* | Channels are created as `<prefix> Info / Normal / Important`. A separate prefix per script lets each script have its own sound. |
+| **Fast delivery** — *Livrare imediată* | Sends with `priority: high` and `ttl: 0`, so battery saving doesn't delay the notification. It doesn't change the sound. |
+| **Alert once** — *Sună o singură dată* | Updates to the same notification don't sound again. |
+| **Persistent** — *Notificare fixă* | The notification can't be swiped away. |
+| **Sticky** — *Rămâne după apăsare* | The notification stays after it is tapped. |
+| **Countdown** — *Numărătoare inversă* | Shows the time left until the timeout. |
+| **Vibration pattern** — *Model vibrație* | For example `0, 500, 200, 500` (milliseconds of pause, vibrate, pause, vibrate…). |
+| **LED color** — *Culoare LED* | Only on phones that still have a notification LED. |
+| **Lock screen** — *Pe ecranul blocat* | Public / Private / Secret. |
+| **Android Auto** | Also shows the notification in the car. |
+| **TTS** — *Citește cu voce tare* | The phone reads the message aloud. *Media* can't be heard in silent mode; *Alarm* can; *Alarm (max)* temporarily raises the alarm volume to maximum. TTS never plays at the Info level. |
 </details>
 
 <details>
 <summary><b> iOS</b></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Sunet** | Numele unui sunet din aplicație (*Settings → Companion App → Notifications → Sounds*), de exemplu `US-EN-Alexa-Doorbell.wav`. `none` = fără sunet. |
-| **Volum la Critic** | 0–1. Se aude chiar și cu telefonul pe Mute. |
+| **Sound** — *Sunet* | The name of a sound in the app (*Settings → Companion App → Notifications → Sounds*), for example `US-EN-Alexa-Doorbell.wav`. `none` means no sound. |
+| **Critical volume** — *Volum la Critic* | 0–1. Plays even when the phone is muted. |
 </details>
 
 <details>
-<summary><b>⚙️ Diverse</b></summary>
+<summary><b>⚙️ Misc</b> — <i>Diverse</i></summary>
 
-| Setare | Ce face |
+| Setting | What it does |
 |---|---|
-| **Tag** | Gol (recomandat) înseamnă tag unic per rulare. Un tag fix, de exemplu `interfon`, face ca o notificare nouă s-o **înlocuiască** pe cea veche. |
-| **Grup** | Grupează vizual notificările. Pe iOS, cele critice nu se grupează. |
+| **Tag** | Leave it empty (recommended) to get a unique tag per run. A fixed tag such as `intercom` makes each new notification **replace** the previous one. |
+| **Group** — *Grup* | Groups notifications visually. Critical notifications on iOS are never grouped. |
 </details>
 
 ---
 
-## 🧪 Exemple de folosire
+## 🧪 Usage examples
 
-### 1. Interfon: deschide ușa de pe orice telefon
+### 1. Intercom: open the door from any phone
 
-Creezi un script din blueprint cu:
-- **Dispozitive:** telefonul tău + telefonul partenerului
-- **Urgență:** ⚠️ Important
-- **Butonul 1:** `Deschide` → acțiune `switch.turn_on` pe releul ușii; pe iOS activezi *Cere deblocarea*
-- **Butonul 2:** `Ignoră` → fără acțiuni
-- **Imagine:** camera de la intrare
-- **Timeout:** 2 minute
+Create a script from the blueprint with:
+- **Devices:** your phone and your partner's phone
+- **Urgency:** ⚠️ Important
+- **Button 1:** `Open` → `switch.turn_on` on the door relay, with *Require unlock* enabled on iOS
+- **Button 2:** `Ignore` → no actions
+- **Image:** the entrance camera
+- **Timeout:** 2 minutes
 
-Apoi îl apelezi dintr-o automație:
+Then call it from an automation:
 
 ```yaml
 triggers:
   - trigger: state
-    entity_id: binary_sensor.interfon_suna
+    entity_id: binary_sensor.intercom_ringing
     to: "on"
 actions:
-  - action: script.notificare_interfon
+  - action: script.intercom_notification
 ```
 
-### 2. Suprascrierea setărilor la apelare (`fields`)
+### 2. Override settings when calling the script (`fields`)
 
-Același script poate fi apelat cu text, urgență sau dispozitive diferite:
+The same script can be called with a different text, urgency or set of devices:
 
 ```yaml
-- action: script.notificare_generala
+- action: script.general_notification
   data:
-    field_title: "💧 Senzor inundație"
-    field_message: "S-a detectat apă în baie!"
+    field_title: "💧 Water leak"
+    field_message: "Water detected in the bathroom!"
     field_urgency: critical
-    field_tts_text: "Atenție, apă în baie"
+    field_tts_text: "Warning, water in the bathroom"
 ```
 
-Câmpuri disponibile: `field_notify_devices`, `field_urgency`, `field_title`, `field_subtitle`, `field_message`, `field_notification_link`, `field_attachment_type`, `field_attachment_camera_entity`, `field_attachment_image_url`, `field_option_{one,two,three}_enabled`, `field_option_{one,two,three}_text`, `field_enable_timeout`, `field_timeout`, `field_run_timeout_actions`, `field_tts_text`.
+Available fields: `field_notify_devices`, `field_urgency`, `field_title`, `field_subtitle`, `field_message`, `field_notification_link`, `field_attachment_type`, `field_attachment_camera_entity`, `field_attachment_image_url`, `field_option_{one,two,three}_enabled`, `field_option_{one,two,three}_text`, `field_enable_timeout`, `field_timeout`, `field_run_timeout_actions`, `field_tts_text`.
 
-> Acțiunile butoanelor **nu** pot fi suprascrise din `fields`, din cauza unei limitări a blueprint-urilor. Pentru acțiuni diferite, folosește răspunsul scriptului (exemplul 3) sau creează alt script.
+> Button actions **cannot** be overridden through `fields`, because of a blueprint limitation. To run different actions, use the script response (example 3) or create another script.
 
-### 3. Folosirea răspunsului într-o automație
+### 3. Use the response in an automation
 
 ```yaml
-- action: script.notificare_generala
+- action: script.general_notification
   data:
-    field_message: "Ai lăsat geamul deschis. Îl închid?"
-    field_option_one_text: "Închide"
-    field_option_two_text: "Lasă"
-  response_variable: raspuns
+    field_message: "The bedroom window is open. Close it?"
+    field_option_one_text: "Close"
+    field_option_two_text: "Leave it"
+  response_variable: answer
 
-- if: "{{ raspuns.result == 'option_one' }}"
+- if: "{{ answer.result == 'option_one' }}"
   then:
     - action: cover.close_cover
       target:
-        entity_id: cover.geam_dormitor
+        entity_id: cover.bedroom_window
     - action: logbook.log
       data:
-        name: Geam
-        message: "Închis la cererea lui {{ raspuns.responded_by }}"
+        name: Window
+        message: "Closed at {{ answer.responded_by }}'s request"
 ```
 
 > [!WARNING]
-> Ca să primești răspunsul, scriptul trebuie apelat cu `action: script.<nume>`, nu cu `script.turn_on`. Automația așteaptă până răspunde cineva sau până expiră timeout-ul.
+> To receive the response, call the script with `action: script.<name>`, not `script.turn_on`. The automation waits until someone answers or the timeout expires.
 
 ---
 
-## 📤 Răspunsul scriptului
+## 📤 Script response
 
 ```yaml
-result: option_one          # vezi tabelul de mai jos
-responded_by: Ana           # numele persoanei care a răspuns (sau "cineva")
+result: option_one          # see the table below
+responded_by: Ana           # name of the person who answered ("cineva" if unknown)
 responder_person: person.ana
-level: important            # urgența efectivă, după orele de liniște
-quiet_hours: false          # true dacă s-au aplicat orele de liniște
+level: important            # effective urgency, after quiet hours
+quiet_hours: false          # true if quiet hours were applied
 devices: [Pixel 8, iPhone Ana]
 ```
 
-| `result` | Înseamnă |
+| `result` | Meaning |
 |---|---|
-| `option_one` / `option_two` / `option_three` | Cineva a apăsat butonul respectiv |
-| `timeout` | Nu a răspuns nimeni în timpul setat |
-| `notification_cleared` | Notificarea a fost ștearsă cu swipe (cu opțiunea activă) |
-| `cleared_ignored` | Ștearsă cu swipe, dar opțiunea e dezactivată, deci nu s-a rulat nimic |
-| `no_response` | Fără butoane și fără timeout, deci nu s-a așteptat răspuns |
-| `not_sent` | Nu s-a trimis nimic; `reason` este `quiet_hours` sau `no_devices` |
+| `option_one` / `option_two` / `option_three` | Someone pressed that button |
+| `timeout` | Nobody answered in time |
+| `notification_cleared` | The notification was swiped away, with swipe-away = timeout enabled |
+| `cleared_ignored` | Swiped away, but swipe-away = timeout is disabled, so nothing ran |
+| `no_response` | No buttons and no timeout, so no answer was expected |
+| `not_sent` | Nothing was sent; `reason` is `quiet_hours` or `no_devices` |
 
 ---
 
-## ⚠️ Limitări cunoscute
+## ⚠️ Known limitations
 
-- **Restartul HA** oprește ascultarea. Butoanele notificărilor trimise înainte de restart nu mai fac nimic.
-- **Butoanele-link pe Android** nu trimit eveniment în HA, deci **nu opresc timeout-ul**.
-- **Redenumirea telefonului:** serviciul `notify.mobile_app_<nume>` e construit din numele dispozitivului. Dacă redenumești telefonul în aplicație, verifică în *Developer Tools → Actions* că serviciul există.
-- **Televizoarele** (LG webOS, Android TV) nu sunt suportate. Au servicii de notificare proprii, fără butoane.
-- **HTML în mesaj** apare ca text pe iOS.
-- **Numele persoanei** care a răspuns apare doar dacă utilizatorul HA al telefonului e legat de o entitate `person.*`.
+- **Restarting Home Assistant** stops all listeners. Buttons on notifications sent before the restart do nothing.
+- **Link buttons on Android** don't send an event to Home Assistant, so they **don't stop the timeout**.
+- **Renaming a phone:** the `notify.mobile_app_<name>` service is derived from the device name. If you rename the phone in the app, check in *Developer Tools → Actions* that the service still exists.
+- **TVs** (LG webOS, Android TV) are not supported. They have their own notify services, without buttons.
+- **HTML in the message** shows as plain text on iOS.
+- **The responder's name** only appears if the phone's Home Assistant user is linked to a `person.*` entity.
 
 ---
 
-## 🛠 Depanare
+## 🛠 Troubleshooting
 
-**Nu se întâmplă nimic când apăs un buton:**
-1. *Developer Tools → Events* → ascultă `mobile_app_notification_action`.
-2. Rulează scriptul și apasă un buton pe telefon.
-3. Dacă nu apare niciun eveniment, problema e la rețea sau la aplicație, nu la script. Vezi [FAQ-ul Companion](https://companion.home-assistant.io/docs/troubleshooting/faqs).
+**Nothing happens when I press a button:**
+1. In *Developer Tools → Events*, listen to `mobile_app_notification_action`.
+2. Run the script and press a button on the phone.
+3. If no event appears, the problem is the network or the app, not the script. See the [Companion FAQ](https://companion.home-assistant.io/docs/troubleshooting/faqs).
 
-**Pe Android nu se schimbă sunetul sau importanța:** canalul există deja cu setările vechi. Schimbă **prefixul de canal** sau modifică canalul din setările telefonului.
+**The sound or importance doesn't change on Android:** the channel already exists with the old settings. Change the **channel prefix**, or edit the channel in the phone's settings.
 
-**Notificarea nu ajunge deloc:** verifică *Settings → Automations & Scenes → Scripts → (scriptul) → Traces*. Pasul *Notificare* arată serviciul folosit și eventualele erori.
+**The notification never arrives:** open *Settings → Automations & Scenes → Scripts → (your script) → Traces*. The *Notificare* step shows which service was called and any error.
 
 ---
 
 ## 📝 Changelog
 
 ### v3.0
-- Notificări pe mai multe dispozitive; primul răspuns câștigă, iar pe celelalte telefoane notificarea se actualizează
-- Selector de urgență unificat Android/iOS, cu câte un canal Android pentru fiecare nivel
-- Ore de liniște, filtru după prezență, TTS pe Android, imagine din URL
-- Opțiuni Android avansate: numărătoare inversă, `alert_once`, `sticky`, vibrație, LED
-- Sunet personalizat și volum critic pe iOS
-- Secțiuni pliabile, descrieri în română, sintaxă `action:` / `trigger:`, `mode: parallel`
-- Răspunsul scriptului include `responded_by`, `level`, `quiet_hours`
-- Reparații față de v2.0.2: suprascrierea titlurilor butoanelor 2 și 3, exemplul greșit al câmpului 3, descrieri copiate, rezultat lipsă la timeout
+- Notifications to multiple devices; the first answer wins and the notification is updated on the other devices
+- Unified Android/iOS urgency selector, with one Android channel per level
+- Quiet hours, presence filter, Android TTS, image from URL
+- Advanced Android options: countdown, `alert_once`, `sticky`, vibration, LED
+- Custom sound and critical volume on iOS
+- Collapsible sections, descriptions with examples, `action:` / `trigger:` syntax, `mode: parallel`
+- Script response now includes `responded_by`, `level` and `quiet_hours`
+- Fixes over v2.0.2: overriding button 2/3 titles, wrong example on the button 3 field, copied descriptions, missing result on timeout
 
-### v2.0.2 și anterioare
-Vezi [istoricul original al lui @samuelthng](https://github.com/samuelthng/t-house-blueprints/blob/main/notifications.yaml) și [postarea de pe forum](https://community.home-assistant.io/t/notifications-actionable-mobile-notifications-script-with-optional-timeout-feature-and-camera-snapshots-works-with-ios-android/551552).
+### v2.0.2 and earlier
+See [@samuelthng's original changelog](https://github.com/samuelthng/t-house-blueprints/blob/main/notifications.yaml) and the [community thread](https://community.home-assistant.io/t/notifications-actionable-mobile-notifications-script-with-optional-timeout-feature-and-camera-snapshots-works-with-ios-android/551552).
 
 ---
 
-## 🙏 Mulțumiri
+## 🙏 Acknowledgements
 
-- **[@samuelthng](https://github.com/samuelthng)**, autorul blueprint-ului original [Notifications](https://github.com/samuelthng/t-house-blueprints/blob/main/notifications.yaml), pe care se bazează integral această versiune
-- Contribuitorii proiectului original, printre care [@HNKNTA](https://github.com/HNKNTA) (linkul notificării, v2.0.2)
-- Echipa [Home Assistant Companion](https://companion.home-assistant.io/), pentru documentația notificărilor
+- **[@samuelthng](https://github.com/samuelthng)**, author of the original [Notifications](https://github.com/samuelthng/t-house-blueprints/blob/main/notifications.yaml) blueprint, on which this version is entirely based
+- Contributors to the original project, including [@HNKNTA](https://github.com/HNKNTA) (notification link, v2.0.2)
+- The [Home Assistant Companion](https://companion.home-assistant.io/) team, for the notification documentation
 
-Toate drepturile asupra codului original aparțin autorului său.
+All rights to the original code belong to its author.
