@@ -2,75 +2,78 @@ mode: parallel
 max: 20
 max_exceeded: warning
 blueprint:
-  name: 🔔 Notificări (v3.0 — bazat pe samuelthng v2.0.2)
-  # source_url scos intenționat: altfel „Re-import blueprint” ar suprascrie
-  # modificările locale cu versiunea originală de pe GitHub.
+  name: 🔔 Notifications (Version 3.0)
+  source_url: https://github.com/sandreialexandru/Notification-script-for-Home-Assistant/blob/main/notifications_v3.yaml
   homeassistant:
     min_version: 2024.10.0
   domain: script
-  author: samuelthng (original) + modificări locale
+  author: sandreialexandru (based on samuelthng/t-house-blueprints)
   description: >-
-    ## 🔔 Notificări acționabile pentru Home Assistant Companion (Android + iOS)
+    <div>
+      <h2>🔔 Notifications</h2>
+      <b>Version 3.0</b> | 🔗 <a href="https://github.com/sandreialexandru/Notification-script-for-Home-Assistant/blob/main/notifications_v3.yaml" target="_blank">Github Link</a> | 📖 <a href="https://github.com/sandreialexandru/Notification-script-for-Home-Assistant" target="_blank">Documentation</a>
+      </div>
+      <br>
 
-    Bazat pe [Notifications v2.0.2 de samuelthng](https://github.com/samuelthng/t-house-blueprints/blob/main/notifications.yaml).
+    <b>🙏 Based on</b> <a href="https://github.com/samuelthng/t-house-blueprints/blob/main/notifications.yaml" target="_blank">🔔 Notifications v2.0.2</a>
+    by <a href="https://github.com/samuelthng" target="_blank">@samuelthng</a>
+    (💬 <a href="https://community.home-assistant.io/t/notifications-actionable-mobile-notifications-script-with-optional-timeout-feature-and-camera-snapshots-works-with-ios-android/551552" target="_blank">original Community Post</a>).
+    All credit for the original idea and structure goes to him.
 
+    ---
 
-    ### Ce face
+    ### Features
 
-    - 📲 Trimite pe **unul sau mai multe telefoane** deodată (Android și iOS amestecat)
+      > 📲 Sends to **one or more** [Home Assistant Companion](https://companion.home-assistant.io/) devices (Android and iOS mixed)
 
-    - 👥 La mai multe dispozitive: **primul răspuns câștigă**; pe celelalte notificarea
-      nu dispare, ci se actualizează cu cine a răspuns și ce a ales (fără butoane)
+      > 👥 Multiple devices: **first answer wins**; on the other devices the notification is
+      > updated with who answered and what they chose (buttons removed)
 
-    - 🚦 **Un singur selector de urgență** (Info / Normal / Important / Critic), tradus automat
-      în setările corecte pentru Android și iOS
+      > 🚦 **One urgency selector** (Info / Normal / Important / Critical), translated automatically for Android and iOS
 
-    - 🌙 **Ore de liniște**, 🏠 **filtru după prezență**, 🗣️ **TTS pe Android**,
-      🖼️ **imagine din URL sau cameră**, 🎵 **sunet personalizat pe iOS**
+      > 🌙 Quiet hours · 🏠 Presence filter · 🗣️ Android TTS · 🖼️ Camera or URL image · 🎵 Custom iOS sound
 
-    - 3️⃣ Până la 3 butoane, ⌛️ timeout cu acțiuni proprii, 🔗 link la apăsare
-
+      > 3️⃣ Up to 3 action buttons · ⌛️ Timeout with its own actions · 🔗 Notification link
 
     ### Changelog
 
-    **v3.0** — dispozitive multiple, selector de urgență unificat (canal Android separat
-    pe nivel), ore de liniște, filtru prezență, TTS, imagine din URL, opțiuni Android
-    avansate, sunet iOS, secțiuni pliabile, sintaxă `action:`/`trigger:`, `mode: parallel`,
-    reparat: exemplul câmpului Opțiunea 3, descrieri copiate greșit, titluri Opțiunea 2/3
-    nesuprascriibile, rezultat lipsă la timeout cu acțiunile de timeout dezactivate.
+      **v3.0** — multiple devices, unified urgency selector (one Android channel per level),
+      quiet hours, presence filter, TTS, image from URL, advanced Android options, iOS sound,
+      collapsible sections, `action:`/`trigger:` syntax, `mode: parallel`.
+      Fixed: option 3 field example, copy-pasted descriptions, option 2/3 titles not overridable,
+      missing result on timeout when timeout actions were disabled.
 
+    ### Are button presses reaching Home Assistant?
 
-    ### Verificare dacă răspunsurile ajung în HA
-
-    Developer Tools → Events → ascultă `mobile_app_notification_action` → rulează
-    scriptul → apasă un buton pe telefon. Dacă nu apare niciun eveniment, problema e de
-    rețea/aplicație, nu de script.
+      Developer Tools → Events → listen to `mobile_app_notification_action` → run the script →
+      press a button on the phone. If no event shows up, the problem is the network or the app,
+      not this script.
 
   input:
     ##############################
-    # Dispozitive
+    # Devices
     ##############################
     section_devices:
-      name: "📲 Dispozitive și prezență"
+      name: "📲 Devices and presence"
       icon: mdi:cellphone-message
       collapsed: false
       input:
         notify_devices:
-          name: "📲 Dispozitive de notificat"
+          name: "📲 Devices to notify"
           description: >-
-            Unul sau mai multe telefoane/tablete cu aplicația Home Assistant Companion.
+            One or more phones/tablets running the Home Assistant Companion app.
 
 
-            **Cu un singur dispozitiv:** comportament clasic — răspunzi, se execută acțiunea.
+            **One device:** classic behaviour — you answer, the action runs.
 
-            **Cu mai multe:** toate primesc notificarea. Primul răspuns execută acțiunea și
-            oprește ascultarea; pe celelalte dispozitive notificarea e înlocuită cu
-            „✅ <opțiune> — <persoană>, <ora>”, fără butoane, ca nimeni să nu mai apese degeaba.
-            Telefoanele persoanei care a răspuns nu primesc actualizarea.
+            **Several devices:** all of them receive the notification. The first answer runs
+            the action and stops listening; on the other devices the notification is replaced
+            with "✅ <option> — <person>, <time>", without buttons, so nobody presses them in vain.
+            Devices belonging to the person who answered are not updated.
 
 
-            ⚠️ Televizoarele (LG webOS, Android TV) **nu** apar aici — au alt tip de notificare,
-            fără butoane.
+            ⚠️ TVs (LG webOS, Android TV) do **not** appear here — they use a different kind of
+            notification, without buttons.
           default: []
           selector:
             device:
@@ -78,179 +81,179 @@ blueprint:
               filter:
                 - integration: mobile_app
         presence_filter:
-          name: "🏠 Filtru după prezență"
+          name: "🏠 Presence filter"
           description: >-
-            Trimite doar pe dispozitivele ale căror persoane sunt acasă / plecate.
+            Only notify devices whose owners are at home / away.
 
 
-            Prezența se ia de la entitatea `person.*` care are trackerul telefonului;
-            dacă nu există, de la `device_tracker`-ul telefonului. Un dispozitiv fără tracker
-            (ex. o tabletă de perete) primește **mereu** notificarea.
+            Presence comes from the `person.*` entity that uses the phone's tracker; if there is
+            none, from the phone's own `device_tracker`. A device without a tracker
+            (e.g. a wall tablet) is **always** notified.
 
 
-            Exemple: „Doar acasă” pentru „ai lăsat geamul deschis”, „Doar plecați” pentru
-            „cineva a sunat la interfon”.
+            Examples: "Only at home" for "you left the window open", "Only away" for
+            "someone rang the intercom".
           default: all
           selector:
             select:
               options:
-                - label: "Toți (fără filtru)"
+                - label: "Everyone (no filter)"
                   value: all
-                - label: "Doar cei acasă"
+                - label: "Only those at home"
                   value: home
-                - label: "Doar cei plecați"
+                - label: "Only those away"
                   value: away
         presence_bypass_critical:
-          name: "🚨 Urgența Critic ignoră filtrul de prezență"
-          description: "Dacă e activ, o notificare Critică ajunge la toți, indiferent unde sunt."
+          name: "🚨 Critical urgency bypasses the presence filter"
+          description: "When enabled, a Critical notification reaches everyone, wherever they are."
           default: true
           selector:
             boolean:
 
     ##############################
-    # Conținut
+    # Content
     ##############################
     section_content:
-      name: "💬 Conținut"
+      name: "💬 Content"
       icon: mdi:message-text
       collapsed: false
       input:
         title:
-          name: "🏷️ Titlu"
-          description: "Rândul îngroșat de sus. Ex: `Interfon`. Opțional."
+          name: "🏷️ Title"
+          description: "The bold top line. E.g. `Intercom`. Optional."
           default: ""
           selector:
             text:
         subtitle:
-          name: "🏷️ Subtitlu"
+          name: "🏷️ Subtitle"
           description: >-
-            Rândul mic de sub titlu. Pe iOS apare sub titlu; pe Android apare ca text
-            suplimentar când extinzi notificarea. Opțional.
+            The small line under the title. On iOS it is shown under the title; on Android it
+            appears as extra text when the notification is expanded. Optional.
           default: ""
           selector:
             text:
         message:
-          name: "💬 Mesaj"
+          name: "💬 Message"
           description: >-
-            Textul principal. Pe Android poți folosi HTML simplu (`<b>`, `<i>`,
-            `<font color="red">`). Pe iOS tag-urile apar ca text, deci evită-le dacă ai iPhone-uri.
+            The main text. On Android you can use simple HTML (`<b>`, `<i>`,
+            `<font color="red">`). On iOS the tags show up as plain text, so avoid them if you have iPhones.
           selector:
             text:
               multiline: true
         notification_link:
-          name: "🔗 Link la apăsarea notificării"
+          name: "🔗 Notification link"
           description: >-
-            Ce se deschide când apeși pe notificare (nu pe un buton).
+            What opens when you tap the notification (not a button).
 
 
-            - Un dashboard: `/lovelace/interfon`
+            - A dashboard: `/lovelace/intercom`
 
-            - Panoul unei entități (Android): `entityId:lock.usa_intrare`
+            - An entity's more-info panel (Android): `entityId:lock.front_door`
 
-            - O aplicație (Android): `app://com.spotify.music`
+            - An app (Android): `app://com.spotify.music`
 
-            - O pagină web: `https://exemplu.ro`
+            - A web page: `https://example.com`
 
 
-            Gol = deschide aplicația HA. Opțional.
+            Empty = opens the HA app. Optional.
           default: ""
           selector:
             text:
         icon:
-          name: "🙂 Iconiță (Android)"
-          description: "Iconița mică din bara de stare. Ex: `mdi:doorbell`. Gol = iconița HA."
+          name: "🙂 Icon (Android)"
+          description: "The small status-bar icon. E.g. `mdi:doorbell`. Empty = HA icon."
           default: ""
           selector:
             icon:
         enable_icon_color:
-          name: "🎨 Colorează iconița (Android)"
-          description: "Activează culoarea de mai jos pentru iconiță și accentul notificării."
+          name: "🎨 Color the icon (Android)"
+          description: "Applies the color below to the icon and the notification accent."
           default: false
           selector:
             boolean:
         icon_color:
-          name: "🎨 Culoare iconiță (Android)"
+          name: "🎨 Icon color (Android)"
           default: [102, 186, 240]
           selector:
             color_rgb:
 
     ##############################
-    # Atașamente
+    # Attachments
     ##############################
     section_attachments:
-      name: "🖼️ Imagine"
+      name: "🖼️ Image"
       icon: mdi:image
       collapsed: true
       input:
         attachment_type:
-          name: "🖼️ Tip imagine"
+          name: "🖼️ Image type"
           description: >-
-            - **Fără**
+            - **None**
 
-            - **Cameră**: snapshot din momentul trimiterii. Pe iOS, apăsarea lungă arată
-            stream live.
+            - **Camera**: a snapshot taken when the notification is sent. On iOS, long-press
+            shows the live stream.
 
-            - **URL**: orice imagine — `/local/poze/grafic.png` (din `config/www`),
-            `/media/local/x.jpg` sau un link `https://`. Linkurile relative merg doar dacă
-            telefonul ajunge la HA (acasă sau prin URL extern).
+            - **URL**: any image — `/local/pictures/chart.png` (from `config/www`),
+            `/media/local/x.jpg` or an `https://` link. Relative links only load when the
+            phone can reach HA (at home or through your external URL).
           default: none
           selector:
             select:
               options:
-                - label: "Fără"
+                - label: "None"
                   value: none
-                - label: "Cameră"
+                - label: "Camera"
                   value: camera_entity
                 - label: "URL"
                   value: image_url
         attachment_camera_entity:
-          name: "📸 Cameră"
-          description: "Folosit doar cu Tip imagine = Cameră."
+          name: "📸 Camera"
+          description: "Only used with Image type = Camera."
           default: ""
           selector:
             entity:
               filter:
                 - domain: camera
         attachment_image_url:
-          name: "🌐 URL imagine"
-          description: "Folosit doar cu Tip imagine = URL. Ex: `/local/interfon/ultim.jpg`."
+          name: "🌐 Image URL"
+          description: "Only used with Image type = URL. E.g. `/local/intercom/last.jpg`."
           default: ""
           selector:
             text:
 
     ##############################
-    # Urgență
+    # Urgency
     ##############################
     section_urgency:
-      name: "🚦 Urgență"
+      name: "🚦 Urgency"
       icon: mdi:alert
       collapsed: false
       input:
         urgency:
-          name: "🚦 Nivel de urgență"
+          name: "🚦 Urgency level"
           description: >-
-            Un singur reglaj, tradus automat pentru fiecare platformă:
+            A single setting, translated automatically for each platform:
 
 
-            | Nivel | Android | iOS |
+            | Level | Android | iOS |
 
             |---|---|---|
 
-            | 🔕 Info | fără sunet, apare doar în listă | silențios, nu aprinde ecranul |
+            | 🔕 Info | silent, only appears in the shade | silent, does not wake the screen |
 
-            | 🔔 Normal | sunet și vibrație normale | sunet normal |
+            | 🔔 Normal | normal sound and vibration | normal sound |
 
-            | ⚠️ Important | sunet + banner peste ecran | trece de modul Focus |
+            | ⚠️ Important | sound + heads-up banner | breaks through Focus |
 
-            | 🚨 Critic | sunet de **alarmă**, trece de Nu deranja și de silențios | sunet critic, trece de Mute și Focus |
-
-
-            Pe Android, fiecare nivel are **canalul lui** (vezi Prefix canal). Din Setări → Aplicații
-            → Home Assistant → Notificări poți schimba sunetul fiecărui canal separat.
+            | 🚨 Critical | **alarm** sound, bypasses Do Not Disturb and silent mode | critical sound, bypasses Mute and Focus |
 
 
-            ⚠️ Critic pe iOS cere permisiunea „Critical Alerts” acordată aplicației HA
-            (iOS o cere la prima notificare critică).
+            On Android, each level has **its own channel** (see Channel prefix). In Settings → Apps
+            → Home Assistant → Notifications you can change each channel's sound separately.
+
+
+            ⚠️ Critical on iOS needs the "Critical Alerts" permission for the HA app
+            (iOS asks for it on the first critical notification).
           default: normal
           selector:
             select:
@@ -261,221 +264,220 @@ blueprint:
                   value: normal
                 - label: "⚠️ Important"
                   value: important
-                - label: "🚨 Critic"
+                - label: "🚨 Critical"
                   value: critical
         quiet_enabled:
-          name: "🌙 Ore de liniște"
+          name: "🌙 Quiet hours"
           description: >-
-            În intervalul de mai jos, notificările **Info și Normal** sunt tratate conform
-            regulii alese. Important și Critic trec mereu.
+            During the window below, **Info and Normal** notifications follow the rule you
+            choose. Important and Critical always go through.
           default: false
           selector:
             boolean:
         quiet_start:
-          name: "🌙 Început"
-          description: "Poate trece peste miezul nopții (ex. 22:30 → 07:00)."
+          name: "🌙 Start"
+          description: "May cross midnight (e.g. 22:30 → 07:00)."
           default: "22:30:00"
           selector:
             time:
         quiet_end:
-          name: "🌅 Sfârșit"
+          name: "🌅 End"
           default: "07:00:00"
           selector:
             time:
         quiet_mode:
-          name: "🌙 Ce se întâmplă în orele de liniște"
+          name: "🌙 What happens during quiet hours"
           description: >-
-            - **Trimite silențios**: ajunge ca Info (fără sunet, fără TTS) — o vezi dimineața.
+            - **Send silently**: delivered as Info (no sound, no TTS) — you see it in the morning.
 
-            - **Nu trimite**: scriptul se oprește și returnează `result: not_sent`.
+            - **Don't send**: the script stops and returns `result: not_sent`.
           default: demote
           selector:
             select:
               options:
-                - label: "Trimite silențios"
+                - label: "Send silently"
                   value: demote
-                - label: "Nu trimite"
+                - label: "Don't send"
                   value: skip
 
     ##############################
-    # Butoane
+    # Buttons
     ##############################
     section_option_one:
-      name: "1️⃣ Butonul 1"
+      name: "1️⃣ Option 1"
       icon: mdi:numeric-1-box
       collapsed: true
       input:
         confirm_enabled:
-          name: "1️⃣ Afișează butonul 1"
+          name: "1️⃣ Show option 1"
           default: true
           selector:
             boolean:
         confirm_text:
-          name: "1️⃣ Text buton"
-          description: "Ex: `Deschide ușa`. Ține-l scurt — Android taie după ~15 caractere."
-          default: "Opțiunea 1"
+          name: "1️⃣ Button text"
+          description: "E.g. `Open door`. Keep it short — Android truncates after ~15 characters."
+          default: "Option 1"
           selector:
             text:
         confirm_option_mode:
-          name: "1️⃣ Ce face butonul (Android)"
+          name: "1️⃣ Button mode (Android)"
           description: >-
-            Pe Android un buton poate **fie** să ruleze acțiuni în HA, **fie** să deschidă
-            un link — nu ambele (limitare a aplicației: butoanele-link nu trimit eveniment
-            înapoi în HA).
+            On Android a button can **either** run actions in HA **or** open a link — not both
+            (app limitation: link buttons don't send an event back to HA).
 
 
-            - **Acțiuni**: rulează „Acțiuni buton 1”. Pentru un buton care doar închide
-            notificarea, alege Acțiuni și lasă lista goală.
+            - **Actions**: runs "Option 1 actions". For a button that only dismisses the
+            notification, pick Actions and leave the list empty.
 
-            - **Link**: deschide „Link buton 1”. ⚠️ Nu oprește timeout-ul.
+            - **Link**: opens "Option 1 link". ⚠️ Does not stop the timeout.
 
 
-            Pe iOS se ignoră: dacă ai completat ambele, iOS face ambele.
+            Ignored on iOS: if both are filled in, iOS does both.
           default: action
           selector:
             select:
               options:
-                - label: "Acțiuni"
+                - label: "Actions"
                   value: action
                 - label: "Link"
                   value: uri
         confirm_action:
-          name: "1️⃣ Acțiuni buton 1"
-          description: "Rulează când cineva apasă butonul. Scriptul se termină după ele."
+          name: "1️⃣ Option 1 actions"
+          description: "Runs when someone presses the button. The script ends after these."
           default: []
           selector:
             action:
         confirm_uri:
-          name: "1️⃣ Link buton 1"
+          name: "1️⃣ Option 1 link"
           description: >-
-            Ex: `/lovelace/camere`, `entityId:camera.intrare` (Android),
-            `tel:0721000000` (iOS), `https://...`. Gol = fără link.
+            E.g. `/lovelace/cameras`, `entityId:camera.front_door` (Android),
+            `tel:0721000000` (iOS), `https://...`. Empty = no link.
           default: ""
           selector:
             text:
         confirm_icon:
-          name: "1️⃣ Iconiță buton (iOS)"
-          description: "Nume SF Symbol, ex: `door.left.hand.open`. Prefixul se adaugă automat."
+          name: "1️⃣ Button icon (iOS)"
+          description: "SF Symbol name, e.g. `door.left.hand.open`. The prefix is added automatically."
           default: ""
           selector:
             text:
               prefix: "sfsymbols:"
         confirm_is_destructive:
-          name: "1️⃣ Buton roșu (iOS)"
-          description: "Marchează butonul ca acțiune periculoasă (text roșu)."
+          name: "1️⃣ Red button (iOS)"
+          description: "Marks the button as a destructive action (red text)."
           default: false
           selector:
             boolean:
         confirm_authentication_required:
-          name: "1️⃣ Cere deblocarea telefonului (iOS)"
-          description: "Recomandat pentru acțiuni ca deschiderea ușii."
+          name: "1️⃣ Require unlock (iOS)"
+          description: "Recommended for actions like opening a door."
           default: false
           selector:
             boolean:
 
     section_option_two:
-      name: "2️⃣ Butonul 2"
+      name: "2️⃣ Option 2"
       icon: mdi:numeric-2-box
       collapsed: true
       input:
         dismiss_enabled:
-          name: "2️⃣ Afișează butonul 2"
+          name: "2️⃣ Show option 2"
           default: true
           selector:
             boolean:
         dismiss_text:
-          name: "2️⃣ Text buton"
-          description: "Ex: `Ignoră`."
-          default: "Opțiunea 2"
+          name: "2️⃣ Button text"
+          description: "E.g. `Ignore`."
+          default: "Option 2"
           selector:
             text:
         dismiss_option_mode:
-          name: "2️⃣ Ce face butonul (Android)"
-          description: "Vezi explicația de la butonul 1."
+          name: "2️⃣ Button mode (Android)"
+          description: "See the explanation under Option 1."
           default: action
           selector:
             select:
               options:
-                - label: "Acțiuni"
+                - label: "Actions"
                   value: action
                 - label: "Link"
                   value: uri
         dismiss_action:
-          name: "2️⃣ Acțiuni buton 2"
+          name: "2️⃣ Option 2 actions"
           default: []
           selector:
             action:
         dismiss_uri:
-          name: "2️⃣ Link buton 2"
+          name: "2️⃣ Option 2 link"
           default: ""
           selector:
             text:
         dismiss_icon:
-          name: "2️⃣ Iconiță buton (iOS)"
+          name: "2️⃣ Button icon (iOS)"
           default: ""
           selector:
             text:
               prefix: "sfsymbols:"
         dismiss_is_destructive:
-          name: "2️⃣ Buton roșu (iOS)"
+          name: "2️⃣ Red button (iOS)"
           default: false
           selector:
             boolean:
         dismiss_authentication_required:
-          name: "2️⃣ Cere deblocarea telefonului (iOS)"
+          name: "2️⃣ Require unlock (iOS)"
           default: false
           selector:
             boolean:
 
     section_option_three:
-      name: "3️⃣ Butonul 3"
+      name: "3️⃣ Option 3"
       icon: mdi:numeric-3-box
       collapsed: true
       input:
         option_three_enabled:
-          name: "3️⃣ Afișează butonul 3"
+          name: "3️⃣ Show option 3"
           default: false
           selector:
             boolean:
         option_three_text:
-          name: "3️⃣ Text buton"
-          default: "Opțiunea 3"
+          name: "3️⃣ Button text"
+          default: "Option 3"
           selector:
             text:
         option_three_option_mode:
-          name: "3️⃣ Ce face butonul (Android)"
-          description: "Vezi explicația de la butonul 1."
+          name: "3️⃣ Button mode (Android)"
+          description: "See the explanation under Option 1."
           default: action
           selector:
             select:
               options:
-                - label: "Acțiuni"
+                - label: "Actions"
                   value: action
                 - label: "Link"
                   value: uri
         option_three_action:
-          name: "3️⃣ Acțiuni buton 3"
+          name: "3️⃣ Option 3 actions"
           default: []
           selector:
             action:
         option_three_uri:
-          name: "3️⃣ Link buton 3"
+          name: "3️⃣ Option 3 link"
           default: ""
           selector:
             text:
         option_three_icon:
-          name: "3️⃣ Iconiță buton (iOS)"
+          name: "3️⃣ Button icon (iOS)"
           default: ""
           selector:
             text:
               prefix: "sfsymbols:"
         option_three_is_destructive:
-          name: "3️⃣ Buton roșu (iOS)"
+          name: "3️⃣ Red button (iOS)"
           default: false
           selector:
             boolean:
         option_three_authentication_required:
-          name: "3️⃣ Cere deblocarea telefonului (iOS)"
+          name: "3️⃣ Require unlock (iOS)"
           default: false
           selector:
             boolean:
@@ -489,22 +491,22 @@ blueprint:
       collapsed: true
       input:
         enable_timeout:
-          name: "⌛️ Activează timeout"
+          name: "⌛️ Enable timeout"
           description: >-
-            Cât timp ascultă scriptul răspunsuri.
+            How long the script listens for an answer.
 
 
-            - **Activ** (recomandat): după durata aleasă nu mai ascultă și rulează
-            „Acțiuni la timeout”.
+            - **Enabled** (recommended): after the chosen duration it stops listening and runs
+            "Timeout actions".
 
-            - **Inactiv**: ascultă până răspunde cineva. Un restart al HA oprește ascultarea —
-            butoanele notificărilor vechi nu mai fac nimic după restart.
+            - **Disabled**: listens until someone answers. A HA restart stops listening —
+            buttons on older notifications do nothing after a restart.
           default: true
           selector:
             boolean:
         timeout:
-          name: "⌛️ Durată"
-          description: "Minim 1 minut recomandat, ca notificarea să apuce să ajungă."
+          name: "⌛️ Duration"
+          description: "At least 1 minute recommended, so the notification has time to arrive."
           default:
             hours: 0
             minutes: 15
@@ -513,165 +515,165 @@ blueprint:
             duration:
               enable_day: false
         run_timeout_actions:
-          name: "⌛️ Rulează acțiunile la timeout"
+          name: "⌛️ Run timeout actions"
           default: true
           selector:
             boolean:
         timeout_action:
-          name: "⌛️ Acțiuni la timeout"
+          name: "⌛️ Timeout actions"
           description: >-
-            Ce se întâmplă dacă nu răspunde nimeni. Ex: trimite o notificare Critică,
-            aprinde o lumină. ⚠️ Pe Android, apăsarea unui buton-Link nu oprește timeout-ul.
+            What happens if nobody answers. E.g. send a Critical notification,
+            turn on a light. ⚠️ On Android, pressing a Link button does not stop the timeout.
           default: []
           selector:
             action:
         swipe_away_as_timeout:
-          name: "👆 Ștergerea notificării = timeout (Android)"
+          name: "👆 Swipe-away = timeout (Android)"
           description: >-
-            Dacă cineva șterge notificarea cu swipe, se rulează imediat acțiunile de timeout.
-            Cu mai multe dispozitive, ajunge un singur swipe de pe oricare.
-            Nu funcționează împreună cu „Notificare fixă”.
+            If someone swipes the notification away, the timeout actions run immediately.
+            With several devices, one swipe on any of them is enough.
+            Does not work together with "Persistent notification".
           default: false
           selector:
             boolean:
         clear_on_timeout:
-          name: "🧹 Șterge notificarea la timeout"
-          description: "La expirare, notificarea dispare de pe toate dispozitivele."
+          name: "🧹 Clear notification on timeout"
+          description: "When the timeout expires, the notification is removed from all devices."
           default: false
           selector:
             boolean:
 
     ##############################
-    # Android avansat
+    # Advanced Android
     ##############################
     section_android:
-      name: "🤖 Android avansat"
+      name: "🤖 Advanced Android"
       icon: mdi:android
       collapsed: true
       input:
         channel_prefix:
-          name: "📣 Prefix canal"
+          name: "📣 Channel prefix"
           description: >-
-            Canalele create vor fi `<prefix> Info`, `<prefix> Normal`, `<prefix> Important`.
-            Criticul folosește canalul special `alarm_stream`.
+            Channels are created as `<prefix> Info`, `<prefix> Normal`, `<prefix> Important`.
+            Critical uses the special `alarm_stream` channel.
 
 
-            ⚠️ Android fixează sunetul, importanța, vibrația și culoarea LED **la prima
-            creare a canalului**. Dacă schimbi Vibrația sau LED-ul de mai jos, schimbă și
-            prefixul (ex. `Interfon`) ca să se creeze canale noi — altfel modificarea e ignorată.
-            Un prefix propriu per script îți permite și sunete diferite per tip de notificare.
+            ⚠️ Android locks a channel's sound, importance, vibration and LED color **when the
+            channel is first created**. If you change Vibration or LED below, also change the
+            prefix (e.g. `Intercom`) so new channels are created — otherwise the change is ignored.
+            A separate prefix per script also lets you use different sounds per notification type.
           default: "HA"
           selector:
             text:
         android_fast_delivery:
-          name: "⚡ Livrare imediată"
+          name: "⚡ Fast delivery"
           description: >-
-            Trimite cu prioritate mare (`priority: high`, `ttl: 0`), ca telefonul în
-            economie de baterie să nu întârzie notificarea. Nu schimbă sunetul — acela îl
-            decide urgența. La Important și Critic e mereu activ.
+            Sends with high priority (`priority: high`, `ttl: 0`) so a phone in battery-saving
+            mode doesn't delay the notification. Does not change the sound — urgency does that.
+            Always on for Important and Critical.
           default: true
           selector:
             boolean:
         alert_once:
-          name: "🔂 Sună o singură dată"
+          name: "🔂 Alert once"
           description: >-
-            Dacă aceeași notificare e actualizată (același tag), nu mai sună/vibrează din nou.
-            Actualizarea „✅ răspuns de...” folosește oricum asta.
+            If the same notification is updated (same tag), it won't sound/vibrate again.
+            The "✅ answered by..." update always uses this.
           default: false
           selector:
             boolean:
         persist:
-          name: "📌 Notificare fixă"
-          description: "Nu poate fi ștearsă cu swipe; dispare doar la răspuns sau la timeout."
+          name: "📌 Persistent notification"
+          description: "Cannot be swiped away; disappears only on answer or timeout."
           default: false
           selector:
             boolean:
         sticky:
-          name: "🧷 Rămâne după apăsare"
-          description: "Notificarea nu dispare când apeși pe ea (dar poate fi ștearsă cu swipe)."
+          name: "🧷 Sticky"
+          description: "The notification stays after being tapped (but can still be swiped away)."
           default: false
           selector:
             boolean:
         chronometer:
-          name: "⏱️ Numărătoare inversă"
-          description: "Arată în notificare cât timp mai e până la timeout. Doar cu timeout activ."
+          name: "⏱️ Countdown"
+          description: "Shows the time left until the timeout. Only with timeout enabled."
           default: false
           selector:
             boolean:
         vibration_pattern:
-          name: "📳 Model vibrație"
+          name: "📳 Vibration pattern"
           description: >-
-            Milisecunde alternative pauză, vibrație, pauză, vibrație...
-            Ex: `0, 500, 200, 500` = două vibrații lungi. Gol = implicit.
-            ⚠️ Vezi nota de la Prefix canal.
+            Alternating milliseconds of pause, vibrate, pause, vibrate...
+            E.g. `0, 500, 200, 500` = two long vibrations. Empty = default.
+            ⚠️ See the note under Channel prefix.
           default: ""
           selector:
             text:
         enable_led_color:
-          name: "💡 Culoare LED"
-          description: "Doar pe telefoanele care mai au LED de notificare. ⚠️ Vezi nota de la Prefix canal."
+          name: "💡 LED color"
+          description: "Only on phones that still have a notification LED. ⚠️ See the note under Channel prefix."
           default: false
           selector:
             boolean:
         led_color:
-          name: "💡 Culoare LED"
+          name: "💡 LED color"
           default: [255, 0, 0]
           selector:
             color_rgb:
         visibility:
-          name: "🔏 Pe ecranul blocat"
+          name: "🔏 Lock screen visibility"
           description: >-
-            - **Public**: tot textul e vizibil.
+            - **Public**: full content is shown.
 
-            - **Privat**: după setările telefonului.
+            - **Private**: follows the phone's settings.
 
-            - **Secret**: nu apare deloc pe ecranul blocat.
+            - **Secret**: not shown on the lock screen at all.
           default: private
           selector:
             select:
               options:
                 - label: "Public"
                   value: public
-                - label: "Privat"
+                - label: "Private"
                   value: private
                 - label: "Secret"
                   value: secret
         car_ui:
-          name: "🚘 Arată în Android Auto"
+          name: "🚘 Show on Android Auto"
           default: false
           selector:
             boolean:
         tts_enabled:
-          name: "🗣️ Citește cu voce tare (TTS)"
+          name: "🗣️ Read aloud (TTS)"
           description: >-
-            Telefonul citește mesajul cu motorul său de voce, pe lângă notificarea normală.
-            Nu se citește la nivel Info (deci nici în orele de liniște cu „Trimite silențios”).
+            The phone reads the message with its own voice engine, in addition to the normal
+            notification. Not read at Info level (so not during quiet hours with "Send silently").
           default: false
           selector:
             boolean:
         tts_text:
-          name: "🗣️ Text TTS"
-          description: "Gol = mesajul notificării (fără HTML)."
+          name: "🗣️ TTS text"
+          description: "Empty = the notification message (HTML stripped)."
           default: ""
           selector:
             text:
         tts_stream:
-          name: "🔊 Volum TTS"
+          name: "🔊 TTS volume"
           description: >-
-            - **Media**: volumul de media al telefonului; nu se aude pe silențios.
+            - **Media**: the phone's media volume; not heard in silent mode.
 
-            - **Alarmă**: volumul alarmei; se aude și pe silențios / Nu deranja.
+            - **Alarm**: the alarm volume; heard even in silent / Do Not Disturb.
 
-            - **Alarmă la maxim**: setează temporar volumul alarmei la maxim.
+            - **Alarm (max)**: temporarily raises the alarm volume to maximum.
           default: music_stream
           selector:
             select:
               options:
                 - label: "Media"
                   value: music_stream
-                - label: "Alarmă"
+                - label: "Alarm"
                   value: alarm_stream
-                - label: "Alarmă la maxim"
+                - label: "Alarm (max)"
                   value: alarm_stream_max
 
     ##############################
@@ -683,17 +685,17 @@ blueprint:
       collapsed: true
       input:
         ios_sound:
-          name: "🎵 Sunet"
+          name: "🎵 Sound"
           description: >-
-            Numele unui sunet din aplicație (Settings → Companion App → Notifications →
-            Sounds), ex: `US-EN-Alexa-Doorbell.wav`. Sunetele proprii se importă tot de acolo.
-            Gol = sunetul implicit; `none` = fără sunet.
+            The name of a sound in the app (Settings → Companion App → Notifications →
+            Sounds), e.g. `US-EN-Alexa-Doorbell.wav`. Custom sounds are imported there too.
+            Empty = default sound; `none` = no sound.
           default: ""
           selector:
             text:
         ios_critical_volume:
-          name: "🔊 Volum la Critic"
-          description: "Volumul sunetului critic, 0–1. Se aude chiar dacă telefonul e pe Mute."
+          name: "🔊 Critical volume"
+          description: "Volume of the critical sound, 0–1. Plays even when the phone is on Mute."
           default: 1.0
           selector:
             number:
@@ -703,45 +705,45 @@ blueprint:
               mode: slider
 
     ##############################
-    # Diverse
+    # Misc
     ##############################
     section_misc:
-      name: "⚙️ Diverse"
+      name: "⚙️ Misc"
       icon: mdi:cog
       collapsed: true
       input:
         tag:
           name: "🔖 Tag"
           description: >-
-            Identificatorul notificării. O notificare nouă cu același tag o **înlocuiește**
-            pe cea veche în loc să apară separat. Gol (recomandat) = tag unic per rulare.
-            Ex. de folosit: `interfon` — dacă sună de 3 ori, vezi o singură notificare.
+            The notification's identifier. A new notification with the same tag **replaces**
+            the old one instead of appearing separately. Empty (recommended) = unique tag per run.
+            Example use: `intercom` — if it rings 3 times, you see a single notification.
           default: ""
           selector:
             text:
         group:
-          name: "📣 Grup"
+          name: "📣 Group"
           description: >-
-            Notificările cu același grup apar strânse împreună. Ex: `interfon`.
-            Pe iOS, notificările critice nu se grupează.
+            Notifications with the same group are shown together. E.g. `intercom`.
+            On iOS, critical notifications are not grouped.
           default: ""
           selector:
             text:
 
 ##############################
-# Fields (suprascrieri la apelare)
+# Fields (overrides when calling the script)
 ##############################
 fields:
   field_notify_devices:
-    name: "📲 Dispozitive"
-    description: "Suprascrie lista de dispozitive."
+    name: "📲 Devices"
+    description: "Override the device list."
     selector:
       device:
         multiple: true
         filter:
           - integration: mobile_app
   field_urgency:
-    name: "🚦 Urgență"
+    name: "🚦 Urgency"
     description: "info / normal / important / critical"
     example: normal
     selector:
@@ -752,24 +754,24 @@ fields:
           - important
           - critical
   field_title:
-    name: "🏷️ Titlu"
+    name: "🏷️ Title"
     selector:
       text:
   field_subtitle:
-    name: "🏷️ Subtitlu"
+    name: "🏷️ Subtitle"
     selector:
       text:
   field_message:
-    name: "💬 Mesaj"
+    name: "💬 Message"
     selector:
       text:
         multiline: true
   field_notification_link:
-    name: "🔗 Link notificare"
+    name: "🔗 Notification link"
     selector:
       text:
   field_attachment_type:
-    name: "🖼️ Tip imagine"
+    name: "🖼️ Image type"
     selector:
       select:
         options:
@@ -777,62 +779,62 @@ fields:
           - camera_entity
           - image_url
   field_attachment_camera_entity:
-    name: "📸 Cameră"
+    name: "📸 Camera"
     selector:
       entity:
         filter:
           - domain: camera
   field_attachment_image_url:
-    name: "🌐 URL imagine"
+    name: "🌐 Image URL"
     selector:
       text:
   field_option_one_enabled:
-    name: "1️⃣ Afișează butonul 1"
+    name: "1️⃣ Show option 1"
     selector:
       boolean:
   field_option_one_text:
-    name: "1️⃣ Text buton 1"
+    name: "1️⃣ Option 1 text"
     selector:
       text:
   field_option_two_enabled:
-    name: "2️⃣ Afișează butonul 2"
+    name: "2️⃣ Show option 2"
     selector:
       boolean:
   field_option_two_text:
-    name: "2️⃣ Text buton 2"
+    name: "2️⃣ Option 2 text"
     selector:
       text:
   field_option_three_enabled:
-    name: "3️⃣ Afișează butonul 3"
+    name: "3️⃣ Show option 3"
     selector:
       boolean:
   field_option_three_text:
-    name: "3️⃣ Text buton 3"
+    name: "3️⃣ Option 3 text"
     selector:
       text:
   field_enable_timeout:
-    name: "⌛️ Activează timeout"
+    name: "⌛️ Enable timeout"
     selector:
       boolean:
   field_timeout:
-    name: "⌛️ Durată timeout"
+    name: "⌛️ Timeout duration"
     selector:
       duration:
         enable_day: false
   field_run_timeout_actions:
-    name: "⌛️ Rulează acțiunile la timeout"
+    name: "⌛️ Run timeout actions"
     selector:
       boolean:
   field_tts_text:
-    name: "🗣️ Text TTS"
+    name: "🗣️ TTS text"
     selector:
       text:
 
 sequence:
   ##############################
-  # Variabile de bază
+  # Base variables
   ##############################
-  - alias: Conținut
+  - alias: Content
     variables:
       script_title: !input title
       title: "{{ field_title if field_title is defined else script_title }}"
@@ -846,7 +848,7 @@ sequence:
       tag: "{{ custom_tag if custom_tag | length else this.entity_id ~ '-' ~ context.id }}"
       group: !input group
 
-  - alias: Urgență și ore de liniște
+  - alias: Urgency and quiet hours
     variables:
       script_urgency: !input urgency
       requested_level: "{{ field_urgency if field_urgency is defined else script_urgency }}"
@@ -910,7 +912,7 @@ sequence:
       swipe_away_as_timeout: !input swipe_away_as_timeout
       clear_on_timeout: !input clear_on_timeout
 
-  - alias: Imagine
+  - alias: Image
     variables:
       script_attachment_type: !input attachment_type
       attachment_type: "{{ field_attachment_type if field_attachment_type is defined else script_attachment_type }}"
@@ -924,7 +926,7 @@ sequence:
           {{ pic if pic else '/api/camera_proxy/' ~ camera_entity }}
         {% endif %}
 
-  - alias: Butoane
+  - alias: Buttons
     variables:
       s_opt1_enabled: !input confirm_enabled
       s_opt1_title: !input confirm_text
@@ -972,9 +974,9 @@ sequence:
       expect_response: "{{ enable_timeout or any_option }}"
 
   ##############################
-  # Dispozitive + filtru prezență
+  # Target devices + presence filter
   ##############################
-  - alias: Dispozitive țintă
+  - alias: Target devices
     variables:
       script_devices: !input notify_devices
       raw_devices: "{{ field_notify_devices if field_notify_devices is defined else script_devices }}"
@@ -1007,7 +1009,7 @@ sequence:
         {% endfor %}
         {{ ns.out }}
 
-  - alias: Oprire dacă nu trimitem nimic
+  - alias: Stop if there is nothing to send
     if:
       - condition: template
         value_template: "{{ (quiet_applies and quiet_mode == 'skip') or targets | length == 0 }}"
@@ -1017,13 +1019,13 @@ sequence:
             {{ {'result': 'not_sent',
                 'reason': 'quiet_hours' if (quiet_applies and quiet_mode == 'skip') else 'no_devices',
                 'level': level, 'devices': []} }}
-      - stop: "Nimic de trimis."
+      - stop: "Nothing to send."
         response_variable: user_response
 
   ##############################
-  # Trimitere
+  # Send
   ##############################
-  - alias: Trimite pe fiecare dispozitiv
+  - alias: Send to each device
     repeat:
       for_each: "{{ targets }}"
       sequence:
@@ -1083,7 +1085,7 @@ sequence:
                 {% if enable_led_color %}{% set d = dict(d, **{'ledColor': led_color_hex}) %}{% endif %}
               {% endif %}
               {{ d }}
-        - alias: Notificare
+        - alias: Notification
           action: "{{ dev.service }}"
           continue_on_error: true
           data:
@@ -1104,11 +1106,11 @@ sequence:
                   media_stream: "{{ tts_stream }}"
 
   ##############################
-  # Așteptare răspuns
+  # Wait for response
   ##############################
-  - alias: Așteaptă răspuns
+  - alias: Wait for response
     choose:
-      - alias: Cu timeout
+      - alias: With timeout
         conditions: "{{ expect_response and enable_timeout }}"
         sequence:
           - wait_for_trigger:
@@ -1130,7 +1132,7 @@ sequence:
                   tag: "{{ tag }}"
             timeout: "{{ timeout }}"
             continue_on_timeout: true
-      - alias: Fără timeout
+      - alias: Without timeout
         conditions: "{{ expect_response and not enable_timeout }}"
         sequence:
           - wait_for_trigger:
@@ -1152,12 +1154,12 @@ sequence:
                   tag: "{{ tag }}"
 
   ##############################
-  # Interpretare răspuns
+  # Parse response
   ##############################
-  - alias: Interpretează răspunsul
+  - alias: Parse response
     variables:
-      # wait.trigger conține un obiect Event care nu se poate salva într-o variabilă,
-      # așa că extragem direct câmpurile necesare.
+      # wait.trigger holds an Event object that cannot be stored in a variable,
+      # so the needed fields are extracted directly.
       got_event: "{{ wait is defined and wait.trigger is not none }}"
       event_type: "{{ wait.trigger.event.event_type if got_event else '' }}"
       event_action: "{{ (wait.trigger.event.data.action | default('')) if got_event else '' }}"
@@ -1177,7 +1179,7 @@ sequence:
       responder_person: >-
         {{ (states.person | selectattr('attributes.user_id', 'eq', responder_uid)
             | map(attribute='entity_id') | list | first | default('')) if responder_uid else '' }}
-      responder_name: "{{ state_attr(responder_person, 'friendly_name') if responder_person else 'cineva' }}"
+      responder_name: "{{ state_attr(responder_person, 'friendly_name') if responder_person else 'someone' }}"
       user_response: >-
         {{ {'result': result,
             'responded_by': responder_name if result.startswith('option_') else none,
@@ -1187,9 +1189,9 @@ sequence:
             'devices': targets | map(attribute='name') | list} }}
 
   ##############################
-  # Varianta B: actualizează celelalte dispozitive
+  # Update the notification on the other devices
   ##############################
-  - alias: Actualizează notificarea pe celelalte dispozitive
+  - alias: Update notification on the other devices
     if:
       - condition: template
         value_template: "{{ targets | length > 1 and result.startswith('option_') }}"
@@ -1214,30 +1216,30 @@ sequence:
                       {% endif %}
 
   ##############################
-  # Acțiuni
+  # Actions
   ##############################
-  - alias: Rulează acțiunile
+  - alias: Run actions
     choose:
       - alias: Timeout
         conditions: "{{ result == 'timeout' and run_timeout_actions }}"
         sequence: !input timeout_action
-      - alias: Notificare ștearsă
+      - alias: Notification cleared
         conditions: "{{ result == 'notification_cleared' and run_timeout_actions }}"
         sequence: !input timeout_action
-      - alias: Butonul 1
+      - alias: Option 1
         conditions: "{{ result == 'option_one' }}"
         sequence: !input confirm_action
-      - alias: Butonul 2
+      - alias: Option 2
         conditions: "{{ result == 'option_two' }}"
         sequence: !input dismiss_action
-      - alias: Butonul 3
+      - alias: Option 3
         conditions: "{{ result == 'option_three' }}"
         sequence: !input option_three_action
 
   ##############################
-  # Ștergere la timeout (iOS nu suportă auto-ștergere; Android o face singur)
+  # Clear on timeout (iOS has no auto-clear; Android handles it itself)
   ##############################
-  - alias: Șterge notificarea pe iOS la timeout
+  - alias: Clear iOS notifications on timeout
     if:
       - condition: template
         value_template: "{{ result == 'timeout' and enable_timeout and clear_on_timeout }}"
@@ -1252,5 +1254,5 @@ sequence:
                 data:
                   tag: "{{ tag }}"
 
-  - stop: "Gata."
+  - stop: "Done."
     response_variable: user_response
