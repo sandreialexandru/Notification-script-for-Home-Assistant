@@ -2,7 +2,7 @@ mode: parallel
 max: 20
 max_exceeded: warning
 blueprint:
-  name: 🔔 Notifications (Version 3.0)
+  name: 🔔 Notifications (Version 3.0.1)
   source_url: https://github.com/sandreialexandru/Notification-script-for-Home-Assistant/blob/main/notifications_v3.yaml
   homeassistant:
     min_version: 2024.10.0
