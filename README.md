@@ -341,7 +341,8 @@ devices: [Pixel 8, iPhone Ana]
 
 ## 📝 Changelog
 
-### v3.0
+### v3.0.1
+- Minor fixes
 - Notifications to multiple devices; the first answer wins and the notification is updated on the other devices
 - Unified Android/iOS urgency selector, with one Android channel per level
 - Quiet hours, presence filter, Android TTS, image from URL
